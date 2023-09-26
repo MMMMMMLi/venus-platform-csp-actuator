@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos-qa:8848
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        file-extension: yml
+        extension-configs:
+          - data-id: csp-framework-common.yml
+            group: COMMON_GROUP
+            refresh: true

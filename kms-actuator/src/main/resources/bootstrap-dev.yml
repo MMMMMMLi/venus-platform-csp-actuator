@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 172.20.81.156:9092
+      bindings:
+        # 消息生产者
+        testProducer-out-0:
+          destination: test-group-topic
+          content-type: application/json
+          group: test-group
+          binder: kafka
+        # 消息消费者
+        testConsumer-in-0:
+          destination: test-group-topic
+          content-type: application/json
+          group: test-group
+          binder: kafka
+      function:
+        definition: testConsumer

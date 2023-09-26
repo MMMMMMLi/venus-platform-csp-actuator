@@ -1,0 +1,8 @@
+server:
+  servlet:
+    context-path: /csp/kms
+spring:
+  application:
+    name: csp-kms-actuator
+  profiles:
+    active: dev
