@@ -1,4 +1,4 @@
-package com.csp.kms.actuator.demo.producer;
+package com.csp.actuator.demo.producer;
 
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;

@@ -9,13 +9,13 @@ spring:
         testProducer-out-0:
           destination: test-group-topic
           content-type: application/json
-          group: test-group
+          group: ${data.center-id}
           binder: kafka
         # 消息消费者
         testConsumer-in-0:
           destination: test-group-topic
           content-type: application/json
-          group: test-group
+          group: ${data.center-id}
           binder: kafka
       function:
         definition: testConsumer

@@ -1,4 +1,4 @@
-package com.csp.kms.actuator;
+package com.csp.actuator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

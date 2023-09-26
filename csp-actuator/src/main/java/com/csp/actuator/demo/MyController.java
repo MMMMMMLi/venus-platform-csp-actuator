@@ -1,6 +1,6 @@
-package com.csp.kms.actuator.demo;
+package com.csp.actuator.demo;
 
-import com.csp.kms.actuator.demo.producer.Test;
+import com.csp.actuator.demo.producer.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
