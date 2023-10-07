@@ -9,7 +9,6 @@ spring:
         testProducer-out-0:
           destination: test-group-topic
           content-type: application/json
-          group: ${data.center-id}
           binder: kafka
         # 消息消费者
         testConsumer-in-0:

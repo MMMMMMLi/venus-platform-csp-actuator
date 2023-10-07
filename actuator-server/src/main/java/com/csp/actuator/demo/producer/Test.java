@@ -1,5 +1,7 @@
 package com.csp.actuator.demo.producer;
 
+import com.csp.actuator.api.kms.CreateKeyTopicInfo;
+import com.csp.actuator.api.utils.JsonUtils;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,7 @@ public class Test {
     public Consumer<String> testConsumer() {
         return msg -> {
             System.out.println("testConsumer:" + msg);
+            System.out.println("info:" + JsonUtils.convertValue(msg, CreateKeyTopicInfo.class));
         };
     }
 }

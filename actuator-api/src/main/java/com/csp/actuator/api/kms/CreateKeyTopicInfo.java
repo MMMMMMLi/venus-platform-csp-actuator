@@ -16,4 +16,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateKeyTopicInfo {
+    private String dataCenterId;
 }

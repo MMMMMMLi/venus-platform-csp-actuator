@@ -25,6 +25,7 @@
         <spring-cloud-stream.version>3.2.9</spring-cloud-stream.version>
         <spring-cloud.version>2021.0.1</spring-cloud.version>
         <spring-cloud.bootstrap.version>3.1.1</spring-cloud.bootstrap.version>
+        <hutool.version>5.7.8</hutool.version>
     </properties>
 
     <dependencies>
@@ -50,11 +51,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -63,6 +59,13 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-stream-kafka</artifactId>
             <version>${spring-cloud-stream.version}</version>
+        </dependency>
+
+        <!-- hutool -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
         </dependency>
 
         <!-- jna -->
