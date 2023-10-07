@@ -1,4 +1,4 @@
-package com.example.actuator.api.kms;
+package com.csp.actuator.api.kms;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
