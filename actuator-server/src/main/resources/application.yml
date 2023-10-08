@@ -1,0 +1,24 @@
+server:
+  port: 8022
+  servlet:
+    context-path: /csp/actuator
+spring:
+  application:
+    name: csp-actuator-server
+  profiles:
+    active: dev
+
+logging:
+  level:
+    org.apache.kafka: warn
+
+data:
+  center:
+    id: default1
+    name: default1
+
+#  定时上报为启动之后的10min为第一次，后续每30min上报一次
+node:
+  report:
+    initialDelay: 10
+    fixedDelay: 30

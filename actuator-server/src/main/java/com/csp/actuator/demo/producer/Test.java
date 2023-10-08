@@ -28,7 +28,7 @@ public class Test {
     public Consumer<String> testConsumer() {
         return msg -> {
             System.out.println("testConsumer:" + msg);
-            System.out.println("info:" + JsonUtils.convertValue(msg, CreateKeyTopicInfo.class));
+            // System.out.println("info:" + JsonUtils.convertValue(msg, CreateKeyTopicInfo.class));
         };
     }
 }

@@ -9,7 +9,7 @@
         <version>2.6.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.csp.kms</groupId>
+    <groupId>com.csp.actuator</groupId>
     <artifactId>actuator-api</artifactId>
     <version>1.0-cloud-SNAPSHOT</version>
     <description>actuator-api</description>

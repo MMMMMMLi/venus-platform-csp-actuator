@@ -9,7 +9,7 @@
         <version>2.6.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.csp.kms</groupId>
+    <groupId>com.csp.actuator</groupId>
     <artifactId>actuator-server</artifactId>
     <version>1.0-cloud-SNAPSHOT</version>
     <description>actuator-server</description>
@@ -38,6 +38,7 @@
             <type>pom</type>
             <scope>import</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
@@ -45,7 +46,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.csp.kms</groupId>
+            <groupId>com.csp.actuator</groupId>
             <artifactId>actuator-api</artifactId>
             <version>1.0-cloud-SNAPSHOT</version>
         </dependency>
@@ -79,10 +80,16 @@
             <artifactId>jna</artifactId>
             <version>${jna.version}</version>
         </dependency>
+
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-platform</artifactId>
             <version>${jna.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <dependency>
@@ -100,6 +107,13 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/GHSMAPI-v2.3.0.M-20230425.01.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 
     <build>

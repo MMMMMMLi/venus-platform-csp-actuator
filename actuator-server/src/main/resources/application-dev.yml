@@ -14,7 +14,7 @@ spring:
         testConsumer-in-0:
           destination: test-group-topic
           content-type: application/json
-          group: ${data.center-id}
+          group: ${data.center.id}
           binder: kafka
       function:
         definition: testConsumer
