@@ -22,3 +22,8 @@ node:
   report:
     initialDelay: 10
     fixedDelay: 30
+
+# Topic消息数据时效性: 10min
+msg:
+  effective:
+    time: 10

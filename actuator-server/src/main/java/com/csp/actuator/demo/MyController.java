@@ -38,6 +38,7 @@ public class MyController {
         System.out.println("message: " + message);
         CreateKeyTopicInfo createKeyTopicInfo = new CreateKeyTopicInfo(message);
         createKeyTopicInfo.setDataCenterId(message);
+        createKeyTopicInfo.setDate(System.currentTimeMillis());
         messageProducer.producerMessage("testConfirmDataCenter-out-0", createKeyTopicInfo);
         System.out.println(">>>>>>>>");
         return "ok";

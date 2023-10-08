@@ -1,9 +1,7 @@
 package com.csp.actuator.api.data.center;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.csp.actuator.api.base.DataCenterInfo;
+import lombok.*;
 
 /**
  * @author Weijia Jiang
@@ -15,11 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActuatorNodeStatusTopicInfo {
-    private String dataCenterId;
+@EqualsAndHashCode(callSuper = true)
+public class ActuatorNodeStatusTopicInfo extends DataCenterInfo {
     private String dataCenterName;
     private String actuatorIp;
     private String actuatorPort;
-    private Long date;
     private Integer status;
 }

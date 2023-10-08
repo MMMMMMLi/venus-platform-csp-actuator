@@ -78,14 +78,16 @@ public class NodeReport {
         } catch (UnknownHostException e) {
             log.error("获取当前设备IP失败...");
         }
-        return ActuatorNodeStatusTopicInfo.builder()
-                .dataCenterId(dataCenterId)
-                .dataCenterName(dataCenterName)
-                .actuatorIp(ip)
-                .actuatorPort(serverPort)
-                .date(System.currentTimeMillis())
-                .status(autuatorStatusEnum.ordinal())
-                .build();
+        ActuatorNodeStatusTopicInfo actuatorNodeStatusTopicInfo =
+                ActuatorNodeStatusTopicInfo.builder()
+                        .dataCenterName(dataCenterName)
+                        .actuatorIp(ip)
+                        .actuatorPort(serverPort)
+                        .status(autuatorStatusEnum.ordinal())
+                        .build();
+        actuatorNodeStatusTopicInfo.setDataCenterId(dataCenterId);
+        actuatorNodeStatusTopicInfo.setDate(System.currentTimeMillis());
+        return actuatorNodeStatusTopicInfo;
     }
 
     public static void producerMessage(ActuatorNodeStatusTopicInfo actuatorNodeStatusTopicInfo) {

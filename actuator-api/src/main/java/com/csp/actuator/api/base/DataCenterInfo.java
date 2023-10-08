@@ -19,4 +19,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DataCenterInfo {
     private String dataCenterId;
+
+    private Long date;
 }
