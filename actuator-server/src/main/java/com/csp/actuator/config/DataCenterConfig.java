@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "data.center")
-public class DataCenterInfo {
+public class DataCenterConfig {
     private String id;
     private String name;
 }

@@ -1,7 +1,9 @@
 package com.csp.actuator.api.kms;
 
+import com.csp.actuator.api.base.DataCenterInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateKeyTopicInfo {
-    private String dataCenterId;
+@EqualsAndHashCode(callSuper = true)
+public class CreateKeyTopicInfo extends DataCenterInfo {
+    private String keyInfo;
 }

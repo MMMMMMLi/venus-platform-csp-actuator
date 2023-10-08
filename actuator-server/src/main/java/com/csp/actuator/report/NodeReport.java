@@ -2,7 +2,7 @@ package com.csp.actuator.report;
 
 import com.csp.actuator.api.data.center.ActuatorNodeStatusTopicInfo;
 import com.csp.actuator.api.enums.AutuatorStatusEnum;
-import com.csp.actuator.config.DataCenterInfo;
+import com.csp.actuator.config.DataCenterConfig;
 import com.csp.actuator.constants.TopicBingingName;
 import com.csp.actuator.message.producer.MessageProducer;
 import com.csp.actuator.utils.SpringUtils;
@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -34,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class NodeReport {
 
     @Autowired
-    private DataCenterInfo dataCenterInfo;
+    private DataCenterConfig dataCenterInfo;
 
     @Value("${server.port}")
     private String serverPort;

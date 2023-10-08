@@ -10,11 +10,28 @@ spring:
           destination: test-group-topic
           content-type: application/json
           binder: kafka
+        testConfirmDataCenter-out-0:
+          destination: confirm_data_center
+          content-type: application/json
+          binder: kafka
+        actuatorStatusReport-out-0:
+          destination: actuator_status_report
+          content-type: application/json
+          binder: kafka
+        confirmDataCenterCallBack-out-0:
+          destination: confirm_data_center_call_back
+          content-type: application/json
+          binder: kafka
         # 消息消费者
         testConsumer-in-0:
           destination: test-group-topic
           content-type: application/json
           group: ${data.center.id}
           binder: kafka
+        confirmDataCenter-in-0:
+          destination: confirm_data_center
+          content-type: application/json
+          group: ${data.center.id}
+          binder: kafka
       function:
-        definition: testConsumer
+        definition: testConsumer;confirmDataCenter
