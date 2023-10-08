@@ -21,12 +21,8 @@ public class MyController {
     @Autowired
     private Test test;
 
-    @Autowired
-    private DataCenterInfo dataCenterInfo;
-
     @GetMapping(value = "/{message}")
     public String sendMessage(@PathVariable("message") String message) {
-        System.out.println(dataCenterInfo);
         System.out.println("message: " + message);
         CreateKeyTopicInfo createKeyTopicInfo = new CreateKeyTopicInfo(message);
         test.testProducer(JsonUtils.writeValueAsString(createKeyTopicInfo));

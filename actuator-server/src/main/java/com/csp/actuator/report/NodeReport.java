@@ -5,6 +5,7 @@ import com.csp.actuator.api.enums.AutuatorStatusEnum;
 import com.csp.actuator.config.DataCenterInfo;
 import com.csp.actuator.constants.TopicBingingName;
 import com.csp.actuator.message.producer.MessageProducer;
+import com.csp.actuator.utils.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,29 +36,10 @@ public class NodeReport {
     @Autowired
     private DataCenterInfo dataCenterInfo;
 
-    @Autowired
-    private MessageProducer messageProducer;
-
     @Value("${server.port}")
     private String serverPort;
 
     public static final String DEFAULT_CENTER_INFO_VALUE = "default";
-
-    /**
-     * 项目启动之后上报节点信息
-     */
-    @PostConstruct
-    public void init() {
-        // 校验是否符合不符合不上报
-        if (dataCenterInfoIsError(dataCenterInfo.getId()) || dataCenterInfoIsError(dataCenterInfo.getName())) {
-            return;
-        }
-        log.info("执行节点启动成功，开始上报节点信息...");
-        ActuatorNodeStatusTopicInfo actuatorNodeStatusTopicInfo = getActuatorNodeStatusTopicInfo(AutuatorStatusEnum.INIT);
-        log.info("ActuatorNodeStatusTopicInfo : {}", actuatorNodeStatusTopicInfo);
-        messageProducer.producerMessage(TopicBingingName.NODE_REPORT_BINGING_NAME, actuatorNodeStatusTopicInfo);
-        log.info("上报节点信息完成...");
-    }
 
     /**
      * 定时上报为启动之后的10min为第一次，后续每30min上报一次
@@ -69,10 +51,7 @@ public class NodeReport {
             return;
         }
         log.info("定时上报节点信息...");
-        ActuatorNodeStatusTopicInfo actuatorNodeStatusTopicInfo = getActuatorNodeStatusTopicInfo(AutuatorStatusEnum.UPDATE);
-        log.info("ActuatorNodeStatusTopicInfo : {}", actuatorNodeStatusTopicInfo);
-        messageProducer.producerMessage(TopicBingingName.NODE_REPORT_BINGING_NAME, actuatorNodeStatusTopicInfo);
-        log.info("上报节点信息完成...");
+        producerMessage(getActuatorNodeStatusTopicInfo(dataCenterInfo.getId(), dataCenterInfo.getName(), serverPort, AutuatorStatusEnum.UPDATE));
     }
 
     /**
@@ -85,13 +64,15 @@ public class NodeReport {
             return;
         }
         log.info("执行节点正在关闭，开始上报节点信息...");
-        ActuatorNodeStatusTopicInfo actuatorNodeStatusTopicInfo = getActuatorNodeStatusTopicInfo(AutuatorStatusEnum.CLOSE);
-        log.info("ActuatorNodeStatusTopicInfo : {}", actuatorNodeStatusTopicInfo);
-        messageProducer.producerMessage(TopicBingingName.NODE_REPORT_BINGING_NAME, actuatorNodeStatusTopicInfo);
-        log.info("上报节点信息完成...");
+        producerMessage(getActuatorNodeStatusTopicInfo(dataCenterInfo.getId(), dataCenterInfo.getName(), serverPort, AutuatorStatusEnum.CLOSE));
     }
 
-    private ActuatorNodeStatusTopicInfo getActuatorNodeStatusTopicInfo(AutuatorStatusEnum statusEnum) {
+    public static boolean dataCenterInfoIsError(String dataCenterInfo) {
+        // 检查属性是否存在
+        return StringUtils.isBlank(dataCenterInfo) || DEFAULT_CENTER_INFO_VALUE.equals(dataCenterInfo);
+    }
+
+    public static ActuatorNodeStatusTopicInfo getActuatorNodeStatusTopicInfo(String dataCenterId, String dataCenterName, String serverPort, AutuatorStatusEnum autuatorStatusEnum) {
         String ip = "127.0.0.1";
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
@@ -99,17 +80,22 @@ public class NodeReport {
             log.error("获取当前设备IP失败...");
         }
         return ActuatorNodeStatusTopicInfo.builder()
-                .dataCenterId(dataCenterInfo.getId())
-                .dataCenterName(dataCenterInfo.getName())
+                .dataCenterId(dataCenterId)
+                .dataCenterName(dataCenterName)
                 .actuatorIp(ip)
                 .actuatorPort(serverPort)
                 .date(System.currentTimeMillis())
-                .status(statusEnum.ordinal())
+                .status(autuatorStatusEnum.ordinal())
                 .build();
     }
 
-    public static boolean dataCenterInfoIsError(String dataCenterInfo) {
-        // 检查属性是否存在
-        return StringUtils.isBlank(dataCenterInfo) || DEFAULT_CENTER_INFO_VALUE.equals(dataCenterInfo);
+    public static void producerMessage(ActuatorNodeStatusTopicInfo actuatorNodeStatusTopicInfo) {
+
+        log.info("ActuatorNodeStatusTopicInfo : {}", actuatorNodeStatusTopicInfo);
+        if (SpringUtils.getBean(MessageProducer.class).producerMessage(TopicBingingName.NODE_REPORT_BINGING_NAME, actuatorNodeStatusTopicInfo)) {
+            log.info("上报节点信息完成...");
+        } else {
+            log.error("上报节点信息失败...");
+        }
     }
 }
