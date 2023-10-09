@@ -6,7 +6,7 @@ spring:
   application:
     name: csp-actuator-server
   profiles:
-    active: dev
+    active: kafka
 
 logging:
   level:

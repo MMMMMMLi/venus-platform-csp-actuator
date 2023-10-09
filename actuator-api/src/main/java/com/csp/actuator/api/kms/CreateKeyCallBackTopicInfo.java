@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * 创建密钥回调Topic实体信息
  *
@@ -16,5 +18,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateKeyCallBackTopicInfo {
-    private String dataCenterId;
+
+    /**
+     * 密钥ID
+     */
+    private String KeyId;
+
+    /**
+     * 操作状态
+     */
+    private Integer status;
+
+    /**
+     * 操作结果信息
+     */
+    private String message;
+
+    /**
+     * 操作时间
+     */
+    private Long date;
+
+    /**
+     * 密钥信息
+     */
+    private Map<String, Object> keyInfo;
 }

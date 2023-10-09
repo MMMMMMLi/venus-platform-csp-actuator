@@ -26,6 +26,9 @@
         <spring-cloud.version>2021.0.1</spring-cloud.version>
         <spring-cloud.bootstrap.version>3.1.1</spring-cloud.bootstrap.version>
         <hutool.version>5.7.8</hutool.version>
+        <google-guava.version>25.1-jre</google-guava.version>
+        <commons-io.version>2.7</commons-io.version>
+        <fastjson.version>1.2.83</fastjson.version>
     </properties>
 
     <dependencies>
@@ -70,6 +73,32 @@
             <version>${hutool.version}</version>
         </dependency>
 
+        <!-- guava -->
+        <dependency>
+            <artifactId>guava</artifactId>
+            <groupId>com.google.guava</groupId>
+            <type>jar</type>
+            <version>${google-guava.version}</version>
+        </dependency>
+
+        <!-- commons -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+        <!-- 阿里JSON解析器 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+
         <!-- jna -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
@@ -81,11 +110,6 @@
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-platform</artifactId>
             <version>${jna.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <dependency>
