@@ -1,5 +1,6 @@
 package com.csp.actuator.api.kms;
 
+import com.csp.actuator.api.entity.GenerateKeyResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateKeyCallBackTopicInfo {
+public class GenerateKeyCallBackTopicInfo {
 
     /**
      * 密钥ID
@@ -42,5 +43,5 @@ public class CreateKeyCallBackTopicInfo {
     /**
      * 密钥信息
      */
-    private Map<String, Object> keyInfo;
+    private GenerateKeyResult generateKeyResult;
 }

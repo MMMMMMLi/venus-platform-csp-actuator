@@ -1,7 +1,7 @@
 package com.csp.actuator.device.factory.impl;
 
 import com.csp.actuator.device.DeviceInstanceHelper;
-import com.csp.actuator.device.bean.GenerateKeyResult;
+import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.device.bean.RemoveKeyInfo;
 import com.csp.actuator.device.contants.GlobalUsedTypeCodeConstant;
 import com.csp.actuator.device.enums.GlobalAlgLengthEnum;
@@ -14,8 +14,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-
-import static com.csp.actuator.device.contants.GlobalTypeCodeConstant.ERROR_KEY;
 
 
 /**

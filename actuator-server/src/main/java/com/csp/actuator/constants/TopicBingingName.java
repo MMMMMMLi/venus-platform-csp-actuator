@@ -19,4 +19,9 @@ public class TopicBingingName {
      * 数据中心节点确认回调
      */
     public static final String CONFIRM_DATA_CENTER_CALL_BACK_BINGING_NAME = "confirmDataCenterCallBack-out-0";
+
+    /**
+     * 创建密钥回调
+     */
+    public static final String GENERATE_KEY_CALL_BACK_BINGING_NAME = "generateKeyCallBack-out-0";
 }

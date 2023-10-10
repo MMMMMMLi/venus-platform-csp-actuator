@@ -1,7 +1,5 @@
 package com.csp.actuator.demo.producer;
 
-import com.csp.actuator.api.kms.CreateKeyTopicInfo;
-import com.csp.actuator.api.utils.JsonUtils;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

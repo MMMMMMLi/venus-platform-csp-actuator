@@ -5,7 +5,7 @@ spring:
         binder:
           brokers: 172.20.81.156:9092
       bindings:
-        # 消息生产者
+        # 测试
         testProducer-out-0:
           destination: test-group-topic
           content-type: application/json
@@ -14,12 +14,17 @@ spring:
           destination: confirm_data_center
           content-type: application/json
           binder: kafka
+        # 消息生产者
         actuatorStatusReport-out-0:
           destination: actuator_status_report
           content-type: application/json
           binder: kafka
         confirmDataCenterCallBack-out-0:
           destination: confirm_data_center_call_back
+          content-type: application/json
+          binder: kafka
+        generateKeyCallBack-out-0:
+          destination: generate_key_call_back
           content-type: application/json
           binder: kafka
         # 消息消费者
@@ -33,5 +38,10 @@ spring:
           content-type: application/json
           group: ${data.center.id}
           binder: kafka
+        generateKey-in-0:
+          destination: generate_key
+          content-type: application/json
+          group: ${data.center.id}
+          binder: kafka
       function:
-        definition: testConsumer;confirmDataCenter
+        definition: testConsumer;confirmDataCenter;generateKey

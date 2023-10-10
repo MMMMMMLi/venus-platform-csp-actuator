@@ -1,6 +1,6 @@
 package com.csp.actuator.demo;
 
-import com.csp.actuator.api.kms.CreateKeyTopicInfo;
+import com.csp.actuator.api.kms.GenerateKeyTopicInfo;
 import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.demo.producer.Test;
 import com.csp.actuator.message.producer.MessageProducer;
@@ -27,8 +27,8 @@ public class MyController {
     @GetMapping(value = "/{message}")
     public String sendMessage(@PathVariable("message") String message) {
         System.out.println("message: " + message);
-        CreateKeyTopicInfo createKeyTopicInfo = new CreateKeyTopicInfo(message);
-        test.testProducer(JsonUtils.writeValueAsString(createKeyTopicInfo));
+        GenerateKeyTopicInfo generateKeyTopicInfo = new GenerateKeyTopicInfo(message);
+        test.testProducer(JsonUtils.writeValueAsString(generateKeyTopicInfo));
         System.out.println(">>>>>>>>");
         return "ok";
     }
@@ -36,10 +36,10 @@ public class MyController {
     @GetMapping(value = "/confirmDataCenter/{message}")
     public String test1(@PathVariable("message") String message) {
         System.out.println("message: " + message);
-        CreateKeyTopicInfo createKeyTopicInfo = new CreateKeyTopicInfo(message);
-        createKeyTopicInfo.setDataCenterId(message);
-        createKeyTopicInfo.setDate(System.currentTimeMillis());
-        messageProducer.producerMessage("testConfirmDataCenter-out-0", createKeyTopicInfo);
+        GenerateKeyTopicInfo generateKeyTopicInfo = new GenerateKeyTopicInfo(message);
+        generateKeyTopicInfo.setDataCenterId(message);
+        generateKeyTopicInfo.setDate(System.currentTimeMillis());
+        messageProducer.producerMessage("testConfirmDataCenter-out-0", generateKeyTopicInfo);
         System.out.println(">>>>>>>>");
         return "ok";
     }

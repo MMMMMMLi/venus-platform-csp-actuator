@@ -21,12 +21,12 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class CreateKeyTopicInfo extends DataCenterInfo {
+public class GenerateKeyTopicInfo extends DataCenterInfo {
 
     /**
      * 执行的接口
      */
-    private String operation;
+    private Integer operation;
 
     /**
      * 对应的KeyId

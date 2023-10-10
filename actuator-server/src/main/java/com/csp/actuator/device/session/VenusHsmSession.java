@@ -3,12 +3,10 @@ package com.csp.actuator.device.session;
 
 import com.csp.actuator.device.bean.HsmDeviceDTO;
 import com.csp.actuator.device.bean.PointerWrapper;
-import com.csp.actuator.device.config.VenusConfigProperties;
 import com.csp.actuator.device.enums.GlobalUsedTypeCodeEnum;
 import com.csp.actuator.device.exception.DeviceException;
 import com.csp.actuator.device.utils.EncodeConvertUtil;
 import com.csp.actuator.device.utils.Padding;
-import com.csp.actuator.utils.SpringUtils;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -18,6 +16,8 @@ import org.springframework.stereotype.Component;
 import java.security.SecureRandom;
 import java.util.*;
 
+import static com.csp.actuator.device.contants.HSMConstant.DEVICE_PASSWORD;
+import static com.csp.actuator.device.contants.HSMConstant.VENUS_DLL_NAME_LIST;
 import static com.csp.actuator.device.contants.HsmFunctionConstant.*;
 
 
@@ -44,9 +44,8 @@ public class VenusHsmSession extends AbstractHsmSession {
     public HsmSession instance(HsmDeviceDTO hsm) {
         sdfV2Api = new SDFV2Api();
         int result = 1;
-        VenusConfigProperties properties = SpringUtils.getBean(VenusConfigProperties.class);
         if (hsm.getDeviceHandle() == null) {
-            sdfV2Api.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), properties.getLibNameList(), properties.getPassword(), hsm.getIsEnableSslFlag());
+            sdfV2Api.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), VENUS_DLL_NAME_LIST, DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
             // 初始化会话池
             result = sdfV2Api.SDF_OpenDevice(phDeviceHandle);
             if (result != 0) {
@@ -56,7 +55,7 @@ public class VenusHsmSession extends AbstractHsmSession {
             deviceHandle = phDeviceHandle.getValue();
             hsm.setDeviceHandle(deviceHandle);
         } else {
-            sdfV2Api.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), properties.getLibNameList(), properties.getPassword(), hsm.getIsEnableSslFlag());
+            sdfV2Api.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), VENUS_DLL_NAME_LIST, DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
             this.deviceHandle = hsm.getDeviceHandle();
         }
         // 创建会话

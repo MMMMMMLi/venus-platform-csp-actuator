@@ -1,4 +1,4 @@
-package com.csp.actuator.device.bean;
+package com.csp.actuator.api.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,4 +35,14 @@ public class GenerateKeyResult {
      * 密钥MAC值
      */
     private String keyMac;
+
+    /**
+     * 密钥IV
+     */
+    private String iv;
+
+    /**
+     * 密钥标签
+     */
+    private String keyLabel;
 }

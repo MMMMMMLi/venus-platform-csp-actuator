@@ -51,9 +51,9 @@ public class ConfirmDataCenterConsumer {
                 callBackTopicInfo.setStatus(CallBackStatusEnum.SUCCESS.ordinal());
                 log.info("ConfirmDataCenterCallBackTopicInfo : {}", callBackTopicInfo);
                 if (messageProducer.producerMessage(TopicBingingName.CONFIRM_DATA_CENTER_CALL_BACK_BINGING_NAME, callBackTopicInfo)) {
-                    log.info("ConfirmDataCenter Producer CallBack Success...");
+                    log.info("ConfirmDataCenter CallBack Success...");
                 } else {
-                    log.error("ConfirmDataCenter Producer CallBack Failed...");
+                    log.error("ConfirmDataCenter CallBack Failed...");
                 }
             }
         };

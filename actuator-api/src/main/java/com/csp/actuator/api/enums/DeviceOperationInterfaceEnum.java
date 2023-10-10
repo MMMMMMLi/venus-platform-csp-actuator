@@ -1,5 +1,8 @@
 package com.csp.actuator.api.enums;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 操作设备接口方法枚举
  *
@@ -24,4 +27,22 @@ public enum DeviceOperationInterfaceEnum {
     generateAndSaveSM2Key,
     generateAndSaveSymmetricKey4ProKeyIndex,
     ;
+
+    public static DeviceOperationInterfaceEnum getGenerateKeyEnum(Integer operationIndex) {
+        List<Integer> generateKeyEnumIndexList = new ArrayList<Integer>() {{
+            add(generateSymmetricKey.ordinal());
+            add(generateAndSaveSymmetricKey.ordinal());
+            add(generateSymmetricKey4ProKeyIndex.ordinal());
+            add(generateSymmetricKey4ProKeyInfo.ordinal());
+            add(generateSM2Key.ordinal());
+            add(generateSM2Key4ProKeyValue.ordinal());
+            add(generateAndSaveSM2Key.ordinal());
+            add(generateAndSaveSymmetricKey4ProKeyIndex.ordinal());
+
+        }};
+        if (generateKeyEnumIndexList.contains(operationIndex)) {
+            return DeviceOperationInterfaceEnum.values()[operationIndex];
+        }
+        return null;
+    }
 }

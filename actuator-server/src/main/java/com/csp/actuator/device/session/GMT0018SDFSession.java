@@ -2,11 +2,9 @@ package com.csp.actuator.device.session;
 
 
 import com.csp.actuator.device.bean.HsmDeviceDTO;
-import com.csp.actuator.device.config.HsmConfigProperties;
 import com.csp.actuator.device.exception.DeviceException;
 import com.csp.actuator.device.utils.EncodeConvertUtil;
 import com.csp.actuator.device.utils.Padding;
-import com.csp.actuator.utils.SpringUtils;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -17,6 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.csp.actuator.device.contants.HSMConstant.DEVICE_PASSWORD;
+import static com.csp.actuator.device.contants.HSMConstant.SANSEC_DLL_NAME;
 
 @Slf4j
 @Component
@@ -34,10 +35,9 @@ public class GMT0018SDFSession extends AbstractHsmSession {
     @Override
     public HsmSession instance(HsmDeviceDTO hsm) throws DeviceException {
         sdfApi = new SDFApi();
-        HsmConfigProperties properties = SpringUtils.getBean(HsmConfigProperties.class);
         int result;
         if (hsm.getDeviceHandle() == null) {
-            sdfApi.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), properties.getDllName(), properties.getPassword(), hsm.getIsEnableSslFlag());
+            sdfApi.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), SANSEC_DLL_NAME, DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
             // 初始化会话池
             result = sdfApi.SDF_OpenDevice(phDeviceHandle);
             if (result != 0) {
@@ -47,7 +47,7 @@ public class GMT0018SDFSession extends AbstractHsmSession {
             deviceHandle = phDeviceHandle.getValue();
             hsm.setDeviceHandle(deviceHandle);
         } else {
-            sdfApi.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), properties.getDllName(), properties.getPassword(), hsm.getIsEnableSslFlag());
+            sdfApi.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), SANSEC_DLL_NAME, DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
             this.deviceHandle = hsm.getDeviceHandle();
         }
         // 创建会话

@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.extra.spring.SpringUtil;
 
 import com.csp.actuator.device.DeviceInstanceHelper;
-import com.csp.actuator.device.bean.GenerateKeyResult;
+import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.device.bean.RemoveKeyInfo;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.VendorConstant;

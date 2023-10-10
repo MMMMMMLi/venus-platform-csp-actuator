@@ -23,12 +23,12 @@ public class KeyInfoKeyConstant {
     /**
      * 密钥类型
      */
-    public static final String GLOBAL_KEY_TYPE = "global_key_type";
+    public static final String KEY_TYPE = "global_key_type";
 
     /**
      * 密钥用途
      */
-    public static final String GLOBAL_KEY_USAGE = "global_key_usage";
+    public static final String KEY_USAGE = "global_key_usage";
 
     /**
      * 密钥算法类型
@@ -58,7 +58,7 @@ public class KeyInfoKeyConstant {
     /**
      * KEK密钥类型
      */
-    public static final String KEK_GLOBAL_KEY_TYPE = "kek_global_key_type";
+    public static final String KEK_KEY_TYPE = "kek_global_key_type";
 
     /**
      * KEK密钥算法类型

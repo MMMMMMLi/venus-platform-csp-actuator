@@ -1,12 +1,19 @@
 package com.csp.actuator.helper;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.map.MapUtil;
 import com.csp.actuator.api.base.DataCenterInfo;
 import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.config.DataCenterConfig;
+import com.csp.actuator.exception.ActuatorException;
 import com.csp.actuator.utils.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import static com.csp.actuator.constants.BaseConstant.*;
 
 /**
  * 校验Helper
@@ -66,4 +73,24 @@ public class CheckHelper {
         return true;
     }
 
+    static void checkKeyInfo(Map<String, Object> keyInfo) {
+        // 校验密钥信息是不是空的
+        if (MapUtil.isEmpty(keyInfo)) {
+            throw new ActuatorException(ERROR_KEY_INFO_NOT_FOUND);
+        }
+    }
+
+    static void checkDevModelCode(Integer devModelCode) {
+        // 校验设备状态码对不对
+        if (Objects.isNull(devModelCode)) {
+            throw new ActuatorException(ERROR_KEY_DEV_MODEL_CODE_NOT_FOUND);
+        }
+    }
+
+    static void checkDeviceInfo(List<String> deviceList) {
+        // 校验设备对不对
+        if (CollectionUtil.isEmpty(deviceList)) {
+            throw new ActuatorException(ERROR_KEY_DEV_INFO_NOT_FOUND);
+        }
+    }
 }
