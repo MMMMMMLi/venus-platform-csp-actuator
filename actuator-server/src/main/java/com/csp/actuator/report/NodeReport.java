@@ -1,7 +1,7 @@
 package com.csp.actuator.report;
 
 import com.csp.actuator.api.data.center.ActuatorNodeStatusTopicInfo;
-import com.csp.actuator.api.enums.AutuatorStatusEnum;
+import com.csp.actuator.api.enums.ActuatorStatusEnum;
 import com.csp.actuator.config.DataCenterConfig;
 import com.csp.actuator.constants.TopicBingingName;
 import com.csp.actuator.message.producer.MessageProducer;
@@ -50,7 +50,7 @@ public class NodeReport {
             return;
         }
         log.info("定时上报节点信息...");
-        producerMessage(getActuatorNodeStatusTopicInfo(dataCenterInfo.getId(), dataCenterInfo.getName(), serverPort, AutuatorStatusEnum.UPDATE));
+        producerMessage(getActuatorNodeStatusTopicInfo(dataCenterInfo.getId(), dataCenterInfo.getName(), serverPort, ActuatorStatusEnum.UPDATE));
     }
 
     /**
@@ -63,7 +63,7 @@ public class NodeReport {
             return;
         }
         log.info("执行节点正在关闭，开始上报节点信息...");
-        producerMessage(getActuatorNodeStatusTopicInfo(dataCenterInfo.getId(), dataCenterInfo.getName(), serverPort, AutuatorStatusEnum.CLOSE));
+        producerMessage(getActuatorNodeStatusTopicInfo(dataCenterInfo.getId(), dataCenterInfo.getName(), serverPort, ActuatorStatusEnum.CLOSE));
     }
 
     public static boolean dataCenterInfoIsError(String dataCenterInfo) {
@@ -71,7 +71,7 @@ public class NodeReport {
         return StringUtils.isBlank(dataCenterInfo) || DEFAULT_CENTER_INFO_VALUE.equals(dataCenterInfo);
     }
 
-    public static ActuatorNodeStatusTopicInfo getActuatorNodeStatusTopicInfo(String dataCenterId, String dataCenterName, String serverPort, AutuatorStatusEnum autuatorStatusEnum) {
+    public static ActuatorNodeStatusTopicInfo getActuatorNodeStatusTopicInfo(String dataCenterId, String dataCenterName, String serverPort, ActuatorStatusEnum actuatorStatusEnum) {
         String ip = "127.0.0.1";
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
@@ -83,7 +83,7 @@ public class NodeReport {
                         .dataCenterName(dataCenterName)
                         .actuatorIp(ip)
                         .actuatorPort(serverPort)
-                        .status(autuatorStatusEnum.ordinal())
+                        .status(actuatorStatusEnum.ordinal())
                         .build();
         actuatorNodeStatusTopicInfo.setDataCenterId(dataCenterId);
         actuatorNodeStatusTopicInfo.setDate(System.currentTimeMillis());

@@ -13,7 +13,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum AutuatorStatusEnum {
+public enum ActuatorStatusEnum {
     INIT,
     UPDATE,
     CLOSE,

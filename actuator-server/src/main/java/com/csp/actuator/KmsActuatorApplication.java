@@ -1,6 +1,6 @@
 package com.csp.actuator;
 
-import com.csp.actuator.api.enums.AutuatorStatusEnum;
+import com.csp.actuator.api.enums.ActuatorStatusEnum;
 import com.csp.actuator.report.NodeReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -36,7 +36,7 @@ public class KmsActuatorApplication {
         log.info("执行节点启动成功，开始上报节点信息...");
         NodeReport.producerMessage(
                 NodeReport.getActuatorNodeStatusTopicInfo(
-                        dataCenterId, dataCenterName, environment.getProperty("server.port"), AutuatorStatusEnum.INIT));
+                        dataCenterId, dataCenterName, environment.getProperty("server.port"), ActuatorStatusEnum.INIT));
     }
 
 }
