@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Json工具类（基于jackson）
@@ -36,6 +37,27 @@ public class JsonUtils {
             } catch (JsonProcessingException e) {
                 if (log.isErrorEnabled()) {
                     log.error("JsonUtils -- writeValueAsString -- Exception=", e);
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * JSON字符串转Map对象
+     *
+     * @param content   JSON字符串
+     * @return Map对象
+     */
+    public static Map readValue(String content) {
+        if (content != null && !content.trim().isEmpty()) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.readValue(content, Map.class);
+            } catch (IOException e) {
+                if (log.isErrorEnabled()) {
+                    log.error("JsonUtils -- readValue -- Exception=", e);
                 }
             }
         }
