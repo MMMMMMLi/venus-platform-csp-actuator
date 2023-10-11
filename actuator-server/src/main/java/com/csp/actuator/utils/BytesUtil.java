@@ -3,7 +3,7 @@
 // (powered by FernFlower decompiler)
 //
 
-package com.csp.actuator.device.utils;
+package com.csp.actuator.utils;
 
 import java.io.ByteArrayOutputStream;
 

@@ -31,17 +31,18 @@ public class HSMConstant {
      */
     public static final String VENUS_CONFIG_FILE = "hsmConfig.ini";
 
-
-    public static List<Integer> CANNOT_DELETE_KEYINDEX = Lists.newArrayList(1);
-
+    /**
+     * 启明密码机动态库名称
+     */
+    public static final List<String> VENUS_DLL_NAME_LIST = Lists.newArrayList("libcsp_session","libhsm");
 
     /**
-     * 专属的LMK密钥索引位（前10个留给平台密码机使用）
+     * 三未动态库名称
      */
-    public static Integer GLOBAL_LMK_KEYINDEX = 11;
+    public static final String SANSEC_DLL_NAME = "swsds";
 
     /**
-     * 共享时，存到数据库的默认的密钥索引
+     * 密码机密码
      */
-    public static Integer DEFAULT_DATABASE_KEYINDEX = 0;
+    public static final String DEVICE_PASSWORD = "88888888";
 }

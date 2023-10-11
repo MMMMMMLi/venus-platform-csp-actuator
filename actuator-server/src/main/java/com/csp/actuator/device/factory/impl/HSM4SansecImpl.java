@@ -1,19 +1,23 @@
 package com.csp.actuator.device.factory.impl;
 
-import com.csp.actuator.device.DeviceInstanceHelper;
 import com.csp.actuator.api.entity.GenerateKeyResult;
+import com.csp.actuator.device.DeviceInstanceHelper;
 import com.csp.actuator.device.bean.RemoveKeyInfo;
 import com.csp.actuator.device.contants.GlobalUsedTypeCodeConstant;
 import com.csp.actuator.device.enums.GlobalAlgLengthEnum;
 import com.csp.actuator.device.exception.DeviceException;
 import com.csp.actuator.device.factory.HSMFactory;
 import com.csp.actuator.device.session.GMT0018SDFSession;
-import com.csp.actuator.device.session.HsmSession;
+import com.csp.actuator.utils.DataCenterKeyUtil;
+import com.csp.actuator.utils.SM4Util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+
+import static com.csp.actuator.device.contants.HsmFunctionConstant.PARAM_KEY_INDEX;
+import static com.csp.actuator.device.contants.HsmFunctionConstant.PARAM_OPERATION;
 
 
 /**
@@ -40,22 +44,19 @@ public class HSM4SansecImpl implements HSMFactory {
 
     @Override
     public GenerateKeyResult generateSymmetricKey(int keyAlgType, List<String> devicePostList) {
-        HsmSession serviceSession = null;
+        GMT0018SDFSession session = DeviceInstanceHelper.getOneSansecHSMInstance(devicePostList);
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
-            // 长度
-            Integer strength = GlobalAlgLengthEnum.getAlgLength(keyAlgType);
-            // 基于Kek生成一个密钥
+            // 生成一个密钥
             Map<String, Object> param = new HashMap<>();
-            param.put("operation", "SDF_GenerateKeyWithKEK");
-            param.put("kekIndex", 1);
-            param.put("strength", strength);
-            byte[] data = (byte[]) serviceSession.execute(param);
+            param.put("operation", "GenerateRandom");
+            param.put("strength", 16);
+            byte[] data = (byte[]) session.execute(param);
             if (ArrayUtils.isEmpty(data)) {
                 throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
             }
             log.info("HSM4SansecImpl generateSymmetricKey success, key length = {}", data.length);
+            // 使用软密钥加密保存
+            data = SM4Util.encrypt(DataCenterKeyUtil.getDataCenterKey(), data);
             return GenerateKeyResult.builder()
                     .keyValue(Base64.getEncoder().encodeToString(data))
                     .build();
@@ -63,8 +64,8 @@ public class HSM4SansecImpl implements HSMFactory {
             log.error("HSM4SansecImpl generateSymmetricKey failed, error: ", e);
             throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
+            if (Objects.nonNull(session)) {
+                session.close();
             }
         }
     }
@@ -72,38 +73,29 @@ public class HSM4SansecImpl implements HSMFactory {
     @Override
     public GenerateKeyResult generateAndSaveSymmetricKey(int keyAlgType, Integer keyIndex, List<String> devicePostList) {
         List<GMT0018SDFSession> sessionList = DeviceInstanceHelper.getSansecHSSMInstance(devicePostList);
-        HsmSession serviceSession = null;
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
             // 长度
             Integer strength = GlobalAlgLengthEnum.getAlgLength(keyAlgType);
+            // 生成一个密钥
             Map<String, Object> param = new HashMap<>();
-            param.put("operation", "SDF_GenerateKeyWithKEK");
-            param.put("kekIndex", 1);
-            param.put("strength", strength);
-            byte[] data = (byte[]) serviceSession.execute(param);
-            // 基于Kek生成一个密钥，然后再导入进密码机
+            param.put("operation", "GenerateRandom");
+            param.put("strength", 16);
+            byte[] data = (byte[]) sessionList.get(0).execute(param);
             if (ArrayUtils.isEmpty(data)) {
                 throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
             }
-            log.info("SDF_GenerateKeyWithKEK success, next execute SDF_DeDEK...");
-            // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
-            param = new HashMap<>();
-            param.put("operation", "SDF_DeDEK");
-            param.put("kekIndex", 1);
-            param.put("key", data);
-            byte[] encryData = (byte[]) serviceSession.execute(param);
-            log.info("SDF_DeDEK success, next execute SWMF_InputKEK...");
+            log.info("SDF_GenerateKeyWithKEK success, next execute SWMF_InputKEK...");
 
             // 长度
             Map<String, Object> inputParam = new HashMap<>();
             inputParam.put("operation", "SWMF_InputKEK");
             inputParam.put("keyIndex", keyIndex);
-            inputParam.put("key", encryData);
+            inputParam.put("key", data);
             inputParam.put("strength", strength);
             sessionList.forEach(session -> session.execute(inputParam));
             log.info("SWMF_InputKEK success...");
+            // 使用软密钥加密保存
+            data = SM4Util.encrypt(DataCenterKeyUtil.getDataCenterKey(), data);
             return GenerateKeyResult.builder()
                     .keyValue(Base64.getEncoder().encodeToString(data))
                     .build();
@@ -112,9 +104,6 @@ public class HSM4SansecImpl implements HSMFactory {
             e.printStackTrace();
             throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             sessionList.forEach(GMT0018SDFSession::destroyHsm);
         }
     }
@@ -146,20 +135,10 @@ public class HSM4SansecImpl implements HSMFactory {
     public GenerateKeyResult generateSymmetricKey4ProKeyInfo(Integer globalAlgTypeCode, String proKeyInfo, Integer proKeyGlobalKeyType, String proKeyCv, String destKeyIV, int encDerivedAlg, List<String> devicePostList) {
         log.info("HSM4VenusImpl generateSymmetricKey4ProKeyInfo globalAlgTypeCode:{} ,proKeyInfo:{} ,proKeyGlobalKeyType:{} ,destKeyIV: {}, encDerivedAlg: {}",
                 globalAlgTypeCode, proKeyInfo, proKeyGlobalKeyType, destKeyIV, encDerivedAlg);
-        HsmSession serviceSession = null;
         GMT0018SDFSession snasecSession = DeviceInstanceHelper.getOneSansecHSMInstance(devicePostList);
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
-
-            // 第一步，通过平台密码机，解密应用kek
-            byte[] proKeyInfoByte = Base64.getDecoder().decode(proKeyInfo);
-            Map<String, Object> param = new HashMap<>();
-            // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
-            param.put(PARAM_OPERATION, "SDF_DeDEK");
-            param.put("kekIndex", 1);
-            param.put("key", proKeyInfoByte);
-            byte[] decryptProKeyInfoBytes = (byte[]) serviceSession.execute(param);
+            // 第一步，通过软密钥，解密应用kek
+            byte[] decryptProKeyInfoBytes = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), proKeyInfo);
 
             // 第二步、将解密完的明文，导入并保存到业务密码机里去，索引固定用10
             Integer proKeyIndex = 10;
@@ -185,9 +164,6 @@ public class HSM4SansecImpl implements HSMFactory {
             log.error("HSM4VenusImpl generateSymmetricKey4ProKeyInfo failed, error: ", e);
             throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             if (Objects.nonNull(snasecSession)) {
                 snasecSession.destroyHsm();
             }
@@ -215,17 +191,9 @@ public class HSM4SansecImpl implements HSMFactory {
     @Override
     public Boolean importSymmetricKey(int keyIndex, Integer globalAlgTypeCode, String cipherByLMK, String keyCV, List<String> devicePostList) {
         List<GMT0018SDFSession> sessionList = DeviceInstanceHelper.getSansecHSSMInstance(devicePostList);
-        HsmSession serviceSession = null;
         try {
-            // 导入的是KEK密钥，KEK密钥是由服务的密码机生成的，需要解密一下。
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
-            Map<String, Object> param = new HashMap<>();
-            // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
-            param.put("operation", "SDF_DeDEK");
-            param.put("kekIndex", 1);
-            param.put("key", Base64.getDecoder().decode(cipherByLMK));
-            byte[] encryData = (byte[]) serviceSession.execute(param);
+            // 导入的是KEK密钥，KEK密钥由软算法加密，需要解密。
+            byte[] decryptData = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), cipherByLMK);
             log.info("SDF_DeDEK success, next execute SWMF_InputKEK...");
 
             // 长度
@@ -233,7 +201,7 @@ public class HSM4SansecImpl implements HSMFactory {
             Map<String, Object> inputParam = new HashMap<>();
             inputParam.put("operation", "SWMF_InputKEK");
             inputParam.put("keyIndex", keyIndex);
-            inputParam.put("key", encryData);
+            inputParam.put("key", decryptData);
             inputParam.put("strength", strength);
             sessionList.forEach(session -> session.execute(inputParam));
             log.info("SWMF_InputKEK success...");
@@ -243,9 +211,6 @@ public class HSM4SansecImpl implements HSMFactory {
             e.printStackTrace();
             throw new DeviceException("导入密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             sessionList.forEach(GMT0018SDFSession::destroyHsm);
         }
     }
@@ -287,7 +252,7 @@ public class HSM4SansecImpl implements HSMFactory {
         List<GMT0018SDFSession> sessionList = DeviceInstanceHelper.getSansecHSSMInstance(devicePostList);
         try {
             // 处理密钥
-            String[] keyInfo = StringUtils.split(cipherByLMK, StringPool.AMPERSAND);
+            String[] keyInfo = StringUtils.split(cipherByLMK, "&");
             byte[] priKey = Base64.getDecoder().decode(keyInfo[1]);
             byte[] pubKey = Base64.getDecoder().decode(keyInfo[0]);
             Map<String, Object> param = new HashMap<>();
@@ -322,17 +287,14 @@ public class HSM4SansecImpl implements HSMFactory {
 
     @Override
     public GenerateKeyResult generateSM2Key(Integer proKekIndex, List<String> devicePostList) {
-        HsmSession serviceSession = null;
         GMT0018SDFSession snasecSession = DeviceInstanceHelper.getOneSansecHSMInstance(devicePostList);
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
-            // 调用平台密码机，生成一个ECC密钥对
+            // 调用业务密码机，生成一个ECC密钥对
             Map<String, Object> param = new HashMap<>();
             param.put("operation", "GenerateKeyPair_ECC");
             param.put("algorithm", "SM2");
             param.put("strength", 256);
-            List<byte[]> result = (List<byte[]>) serviceSession.execute(param);
+            List<byte[]> result = (List<byte[]>) snasecSession.execute(param);
             log.info("GenerateKeyPair_ECC success, next execute SDF_InternalEncrypt_SM4...");
             byte[] priKey = null, pubKey = null;
             if (result != null && result.size() > 1) {
@@ -353,16 +315,13 @@ public class HSM4SansecImpl implements HSMFactory {
 
             // 转换组装
             return GenerateKeyResult.builder()
-                    .keyValue(String.join(StringPool.AMPERSAND, Base64.getEncoder().encodeToString(newPubKey), Base64.getEncoder().encodeToString(encryptPriKey)))
+                    .keyValue(String.join("&", Base64.getEncoder().encodeToString(newPubKey), Base64.getEncoder().encodeToString(encryptPriKey)))
                     .build();
         } catch (Exception e) {
             log.error("generateSM2Key failed, error: ", e);
             throw new DeviceException("生成sm2密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
-            if (Objects.nonNull(serviceSession)) {
+            if (Objects.nonNull(snasecSession)) {
                 snasecSession.destroyHsm();
             }
         }
@@ -371,17 +330,14 @@ public class HSM4SansecImpl implements HSMFactory {
 
     @Override
     public GenerateKeyResult generateSM2Key4ProKeyValue(Integer proKeyGlobalAlgTypeCode, String proKeyInfo, List<String> devicePostList) {
-        HsmSession serviceSession = null;
         GMT0018SDFSession snasecSession = DeviceInstanceHelper.getOneSansecHSMInstance(devicePostList);
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
-            // 调用平台密码机，生成一个ECC密钥对
+            // 调用业务密码机，生成一个ECC密钥对
             Map<String, Object> param = new HashMap<>();
             param.put("operation", "GenerateKeyPair_ECC");
             param.put("algorithm", "SM2");
             param.put("strength", 256);
-            List<byte[]> result = (List<byte[]>) serviceSession.execute(param);
+            List<byte[]> result = (List<byte[]>) snasecSession.execute(param);
             log.info("GenerateKeyPair_ECC success, next execute SDF_InternalEncrypt_SM4...");
             byte[] priKey = null, pubKey = null;
             if (result != null && result.size() > 1) {
@@ -394,14 +350,8 @@ public class HSM4SansecImpl implements HSMFactory {
             System.arraycopy(pubKey, 32, newPubKey, 0, 32);
             System.arraycopy(pubKey, 96, newPubKey, 32, 32);
 
-            // 第一步，通过平台密码机，解密应用kek
-            byte[] proKeyInfoByte = Base64.getDecoder().decode(proKeyInfo);
-            param = new HashMap<>();
-            // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
-            param.put(PARAM_OPERATION, "SDF_DeDEK");
-            param.put("kekIndex", 1);
-            param.put("key", proKeyInfoByte);
-            byte[] decryptProKeyInfoBytes = (byte[]) serviceSession.execute(param);
+            // 第一步，通过软密钥解密应用kek
+            byte[] decryptProKeyInfoBytes = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), proKeyInfo);
 
             // 第二步、将解密完的明文，导入并保存到业务密码机里去，索引固定用10
             Integer proKeyIndex = 10;
@@ -422,16 +372,13 @@ public class HSM4SansecImpl implements HSMFactory {
 
             // 第四步，直接返回生成的key，三未的不需要删除密钥索引
             return GenerateKeyResult.builder()
-                    .keyValue(String.join(StringPool.AMPERSAND, Base64.getEncoder().encodeToString(newPubKey), Base64.getEncoder().encodeToString(encryptPriKey)))
+                    .keyValue(String.join("&", Base64.getEncoder().encodeToString(newPubKey), Base64.getEncoder().encodeToString(encryptPriKey)))
                     .build();
         } catch (Exception e) {
             log.error("generateSM2Key failed, error: ", e);
             throw new DeviceException("生成sm2密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
-            if (Objects.nonNull(serviceSession)) {
+            if (Objects.nonNull(snasecSession)) {
                 snasecSession.destroyHsm();
             }
         }
@@ -441,15 +388,12 @@ public class HSM4SansecImpl implements HSMFactory {
     @Override
     public GenerateKeyResult generateAndSaveSM2Key(Integer kekIndex, Integer globalKeyType, int keyIndex, Integer keyUsedType, String keyLabel, List<String> devicePostList) {
         List<GMT0018SDFSession> sessionList = DeviceInstanceHelper.getSansecHSSMInstance(devicePostList);
-        HsmSession serviceSession = null;
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
             Map<String, Object> param = new HashMap<>();
             param.put("operation", "GenerateKeyPair_ECC");
             param.put("algorithm", "SM2");
             param.put("strength", 256);
-            List<byte[]> result = (List<byte[]>) serviceSession.execute(param);
+            List<byte[]> result = (List<byte[]>) sessionList.get(0).execute(param);
             log.info("GenerateKeyPair_ECC success, next execute SDF_InternalEncrypt_SM4...");
             byte[] priKey = null, pubKey = null;
             if (result != null && result.size() > 1) {
@@ -484,7 +428,7 @@ public class HSM4SansecImpl implements HSMFactory {
 
             // 转换组装
             return GenerateKeyResult.builder()
-                    .keyValue(String.join(StringPool.AMPERSAND, Base64.getEncoder().encodeToString(newPubKey),
+                    .keyValue(String.join("&", Base64.getEncoder().encodeToString(newPubKey),
                             Base64.getEncoder().encodeToString(encryPriKey)))
                     .build();
         } catch (Exception e) {
@@ -492,9 +436,6 @@ public class HSM4SansecImpl implements HSMFactory {
             e.printStackTrace();
             throw new DeviceException("生成非对称密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             sessionList.forEach(GMT0018SDFSession::destroyHsm);
         }
     }

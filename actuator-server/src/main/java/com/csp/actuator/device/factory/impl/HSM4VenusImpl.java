@@ -14,8 +14,11 @@ import com.csp.actuator.device.enums.GlobalKeyTypeEnum;
 import com.csp.actuator.device.enums.GlobalUsedTypeCodeEnum;
 import com.csp.actuator.device.exception.DeviceException;
 import com.csp.actuator.device.factory.HSMFactory;
+import com.csp.actuator.device.session.GMT0018SDFSession;
 import com.csp.actuator.device.session.HsmSession;
 import com.csp.actuator.device.session.VenusHsmSession;
+import com.csp.actuator.utils.DataCenterKeyUtil;
+import com.csp.actuator.utils.SM4Util;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -143,22 +146,20 @@ public class HSM4VenusImpl implements HSMFactory {
      */
     @Override
     public GenerateKeyResult generateSymmetricKey(int globalAlgTypeCode, List<String> devicePostList) {
-        HsmSession serviceSession = null;
+        GMT0018SDFSession session = DeviceInstanceHelper.getOneSansecHSMInstance(devicePostList);
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
-            // 根据keyAlgType获取密钥长度
-            Integer strength = GlobalAlgLengthEnum.getAlgLength(globalAlgTypeCode);
+            // 生成一个密钥
             Map<String, Object> param = new HashMap<>();
-            param.put(PARAM_OPERATION, "SDF_GenerateKeyWithKEK");
-            param.put("kekIndex", 1);
-            param.put(PARAM_STRENGTH, strength);
-            byte[] data = (byte[]) serviceSession.execute(param);
+            param.put("operation", "GenerateRandom");
+            param.put("strength", 16);
+            byte[] data = (byte[]) session.execute(param);
             // 基于平台密码机Kek生成一个密钥，这个密钥是加密的
             if (ArrayUtils.isEmpty(data)) {
                 throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
             }
             log.info("HSM4VenusImpl generateSymmetricKey success, key length = {}", data.length);
+            // 使用软密钥加密保存
+            data = SM4Util.encrypt(DataCenterKeyUtil.getDataCenterKey(), data);
             return GenerateKeyResult.builder()
                     .keyValue(Base64.getEncoder().encodeToString(data))
                     .build();
@@ -166,8 +167,8 @@ public class HSM4VenusImpl implements HSMFactory {
             log.error("HSM4VenusImpl generateSymmetricKey failed, error: ", e);
             throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
+            if (Objects.nonNull(session)) {
+                session.close();
             }
         }
     }
@@ -184,41 +185,33 @@ public class HSM4VenusImpl implements HSMFactory {
     @Override
     public GenerateKeyResult generateAndSaveSymmetricKey(int globalAlgTypeCode, Integer keyIndex, List<String> devicePostList) {
         List<VenusHsmSession> sessionList = DeviceInstanceHelper.getVenusHSSMInstance(devicePostList);
-        HsmSession serviceSession = null;
         if (CollectionUtil.isEmpty(sessionList)) {
             return null;
         }
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
             // 根据keyAlgType获取密钥长度
             Integer strength = GlobalAlgLengthEnum.getAlgLength(globalAlgTypeCode);
+            // 生成一个密钥
             Map<String, Object> param = new HashMap<>();
-            param.put(PARAM_OPERATION, "SDF_GenerateKeyWithKEK");
-            param.put("kekIndex", 1);
-            param.put(PARAM_STRENGTH, strength);
-            byte[] data = (byte[]) serviceSession.execute(param);
-            // 基于Kek生成一个密钥，然后再导入进密码机
+            param.put("operation", "GenerateRandom");
+            param.put("strength", 16);
+            byte[] data = (byte[]) sessionList.get(0).execute(param);
             if (ArrayUtils.isEmpty(data)) {
                 throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
             }
-
-            // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
-            param = new HashMap<>();
-            param.put(PARAM_OPERATION, "SDF_DeDEK");
-            param.put("kekIndex", 1);
-            param.put("key", data);
-            byte[] decryptData = (byte[]) serviceSession.execute(param);
+            log.info("SDF_GenerateKeyWithKEK success, next execute SWMF_InputKEK...");
 
             // 再将解密完的明文，导入并保存到密码机里去
             Map<String, Object> inputParam = new HashMap<>();
             inputParam.put(PARAM_OPERATION, "SDIF_ImportKeyAndSave");
             inputParam.put(PARAM_KEY_INDEX, keyIndex);
-            inputParam.put("key", decryptData);
+            inputParam.put("key", data);
             inputParam.put("strength", strength);
             inputParam.put("algType", GlobalAlgTypeEnum.getVendorAlgTypeCode(globalAlgTypeCode, VendorConstant.VENUS_SELF));
 
             sessionList.forEach(session -> session.execute(inputParam));
+            // 使用软密钥加密保存
+            data = SM4Util.encrypt(DataCenterKeyUtil.getDataCenterKey(), data);
             return GenerateKeyResult.builder()
                     .keyValue(Base64.getEncoder().encodeToString(data))
                     .build();
@@ -226,9 +219,6 @@ public class HSM4VenusImpl implements HSMFactory {
             log.error("HSM4VenusImpl generateAndSaveSymmetricKey failed, error: ", e);
             throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             closeVenusHsm(sessionList);
         }
     }
@@ -290,23 +280,13 @@ public class HSM4VenusImpl implements HSMFactory {
     public GenerateKeyResult generateSymmetricKey4ProKeyInfo(Integer globalAlgTypeCode, String proKeyInfo, Integer proKeyGlobalAlgTypeCode, String proKeyCv, String destKeyIV, int encDerivedAlg, List<String> devicePostList) {
         log.info("HSM4VenusImpl generateSymmetricKey4ProKeyInfo globalAlgTypeCode:{} ,proKeyInfo:{} ,proKeyGlobalAlgTypeCode:{} ,destKeyIV: {}, encDerivedAlg: {}",
                 globalAlgTypeCode, proKeyInfo, proKeyGlobalAlgTypeCode, destKeyIV, encDerivedAlg);
-        HsmSession serviceSession = null;
         VenusHsmSession venusHsmSession = DeviceInstanceHelper.getOneVenusHSMInstance(devicePostList);
         if (Objects.isNull(venusHsmSession)) {
             return null;
         }
         try {
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
-
-            // 第一步，通过平台密码机，解密应用kek
-            byte[] proKeyInfoByte = Base64.getDecoder().decode(proKeyInfo);
-            Map<String, Object> param = new HashMap<>();
-            // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
-            param.put(PARAM_OPERATION, "SDF_DeDEK");
-            param.put("kekIndex", 1);
-            param.put("key", proKeyInfoByte);
-            byte[] decryptProKeyInfoBytes = (byte[]) serviceSession.execute(param);
+            // 第一步，通过软密钥，解密应用kek
+            byte[] decryptProKeyInfoBytes = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), proKeyInfo);
 
             // 第二步、将解密完的明文，导入并保存到业务密码机里去，索引固定用10号位
             Integer proKeyIndex = 10;
@@ -342,9 +322,6 @@ public class HSM4VenusImpl implements HSMFactory {
             log.error("HSM4VenusImpl generateSymmetricKey4ProKeyInfo failed, error: ", e);
             throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             closeVenusHsm(venusHsmSession);
         }
     }
@@ -388,17 +365,10 @@ public class HSM4VenusImpl implements HSMFactory {
         if (CollectionUtil.isEmpty(sessionList)) {
             return Boolean.FALSE;
         }
-        HsmSession serviceSession = null;
         try {
-            // 导入的是KEK密钥，KEK密钥是由`平台密码机`生成的，需要解密一下
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
-            Map<String, Object> param = new HashMap<>();
-            // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
-            param.put("operation", "SDF_DeDEK");
-            param.put("kekIndex", 1); // 平台密码机的kekIndex固定是1
-            param.put("key", Base64.getDecoder().decode(cipherByLMK));
-            byte[] decryptData = (byte[]) serviceSession.execute(param);
+            // 导入的是KEK密钥，KEK密钥由软算法加密，需要解密。
+            byte[] decryptData = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), cipherByLMK);
+            log.info("SDF_DeDEK success, next execute SWMF_InputKEK...");
 
             // 导入sm4对称密钥到`业务密码机`
             Integer strength = GlobalAlgLengthEnum.getAlgLength(globalAlgTypeCode);
@@ -415,9 +385,6 @@ public class HSM4VenusImpl implements HSMFactory {
             log.error("HSM4VenusImpl importSymmetricKey failed, error:", e);
             throw new DeviceException("导入密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             closeVenusHsm(sessionList);
         }
     }
@@ -464,7 +431,7 @@ public class HSM4VenusImpl implements HSMFactory {
         }
         try {
             // 处理密钥，将密钥分开成公钥私钥
-            String[] keyInfo = StringUtils.split(cipherByLMK, StringPool.AMPERSAND);
+            String[] keyInfo = StringUtils.split(cipherByLMK, "&");
             byte[] priKey = Base64.getDecoder().decode(keyInfo[1]);
             byte[] pubKey = Base64.getDecoder().decode(keyInfo[0]);
             // 使用平台密码机给私钥解密一下子
@@ -503,20 +470,16 @@ public class HSM4VenusImpl implements HSMFactory {
      */
     @Override
     public GenerateKeyResult generateSM2Key(Integer proKekIndex, List<String> devicePostList) {
-        HsmSession serviceSession = null;
         VenusHsmSession venusHsmSession = DeviceInstanceHelper.getOneVenusHSMInstance(devicePostList);
         if (Objects.isNull(venusHsmSession)) {
             return null;
         }
         try {
-            // 使用平台密码机生成ECC密钥对
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
             Map<String, Object> param = new HashMap<>();
             param.put("operation", "GenerateKeyPair_ECC");
             param.put("algorithm", "SM2");
             param.put("strength", 256);
-            List<byte[]> result = (List<byte[]>) serviceSession.execute(param);
+            List<byte[]> result = (List<byte[]>) venusHsmSession.execute(param);
             byte[] priKey = null, pubKey = null;
             if (result != null && result.size() > 1) {
                 priKey = result.get(0);
@@ -537,35 +500,29 @@ public class HSM4VenusImpl implements HSMFactory {
 
             // 转换组装返回结果
             return GenerateKeyResult.builder()
-                    .keyValue(String.join(StringPool.AMPERSAND, Base64.getEncoder().encodeToString(newPubKey), Base64.getEncoder().encodeToString(encryptPriKey)))
+                    .keyValue(String.join("&", Base64.getEncoder().encodeToString(newPubKey), Base64.getEncoder().encodeToString(encryptPriKey)))
                     .build();
         } catch (Exception e) {
             log.error("HSM4VenusImpl generateSM2Key failed, error: ", e);
             throw new DeviceException("生成非对称密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             closeVenusHsm(venusHsmSession);
         }
     }
 
     @Override
     public GenerateKeyResult generateSM2Key4ProKeyValue(Integer proKeyGlobalAlgTypeCode, String proKekInfo, List<String> devicePostList) {
-        HsmSession serviceSession = null;
         VenusHsmSession venusHsmSession = DeviceInstanceHelper.getOneVenusHSMInstance(devicePostList);
         if (Objects.isNull(venusHsmSession)) {
             return null;
         }
         try {
             // 首先使用平台密码机生成一个ECC密钥对
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
             Map<String, Object> param = new HashMap<>();
             param.put("operation", "GenerateKeyPair_ECC");
             param.put("algorithm", "SM2");
             param.put("strength", 256);
-            List<byte[]> result = (List<byte[]>) serviceSession.execute(param);
+            List<byte[]> result = (List<byte[]>) venusHsmSession.execute(param);
             byte[] priKey = null, pubKey = null;
             if (result != null && result.size() > 1) {
                 priKey = result.get(0);
@@ -578,13 +535,7 @@ public class HSM4VenusImpl implements HSMFactory {
             System.arraycopy(pubKey, 96, newPubKey, 32, 32);
 
             // 第一步，通过平台密码机，解密应用kek
-            byte[] proKeyInfoByte = Base64.getDecoder().decode(proKekInfo);
-            param = new HashMap<>();
-            // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
-            param.put(PARAM_OPERATION, "SDF_DeDEK");
-            param.put("kekIndex", 1);
-            param.put("key", proKeyInfoByte);
-            byte[] decryptProKeyInfoBytes = (byte[]) serviceSession.execute(param);
+            byte[] decryptProKeyInfoBytes = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), proKekInfo);
 
             // 第二步、将解密完的明文，导入并保存到业务密码机里去，索引固定用10号位
             Integer proKekIndex = 10;
@@ -614,15 +565,12 @@ public class HSM4VenusImpl implements HSMFactory {
 
             // 第五步，返回生成的密钥
             return GenerateKeyResult.builder()
-                    .keyValue(String.join(StringPool.AMPERSAND, Base64.getEncoder().encodeToString(newPubKey), Base64.getEncoder().encodeToString(encryptPriKey)))
+                    .keyValue(String.join("&", Base64.getEncoder().encodeToString(newPubKey), Base64.getEncoder().encodeToString(encryptPriKey)))
                     .build();
         } catch (Exception e) {
             log.error("HSM4VenusImpl generateSM2Key failed, error: ", e);
             throw new DeviceException("生成非对称密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
             closeVenusHsm(venusHsmSession);
         }
     }
@@ -633,16 +581,13 @@ public class HSM4VenusImpl implements HSMFactory {
         if (CollectionUtil.isEmpty(sessionList)) {
             return null;
         }
-        HsmSession serviceSession = null;
         try {
-            // 使用平台密码机生成ECC密钥对
-            GMT0018CommandServiceImpl gmt0018CommandService = BaseHelper.getService(GMT0018CommandServiceImpl.class);
-            serviceSession = gmt0018CommandService.getRandomSession(null);
+            // 使用业务密码机生成ECC密钥对
             Map<String, Object> param = new HashMap<>();
             param.put("operation", "GenerateKeyPair_ECC");
             param.put("algorithm", "SM2");
             param.put("strength", 256);
-            List<byte[]> result = (List<byte[]>) serviceSession.execute(param);
+            List<byte[]> result = (List<byte[]>) sessionList.get(0).execute(param);
             byte[] priKey = null, pubKey = null;
             if (result != null && result.size() > 1) {
                 priKey = result.get(0);
@@ -673,16 +618,14 @@ public class HSM4VenusImpl implements HSMFactory {
 
             // 转换组装返回结果
             return GenerateKeyResult.builder()
-                    .keyValue(String.join(StringPool.AMPERSAND, Base64.getEncoder().encodeToString(newPubKey),
+                    .keyValue(String.join("&", Base64.getEncoder().encodeToString(newPubKey),
                             Base64.getEncoder().encodeToString(encryptPriKey)))
                     .build();
         } catch (Exception e) {
             log.error("HSM4VenusImpl generateAndSaveSM2Key failed, error: ", e);
             throw new DeviceException("生成非对称密钥失败，请检查服务器连接是否正常！");
         } finally {
-            if (Objects.nonNull(serviceSession)) {
-                serviceSession.close();
-            }
+
             closeVenusHsm(sessionList);
         }
     }

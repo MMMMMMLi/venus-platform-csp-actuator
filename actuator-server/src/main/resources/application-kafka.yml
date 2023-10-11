@@ -28,11 +28,6 @@ spring:
           content-type: application/json
           binder: kafka
         # 消息消费者
-        testConsumer-in-0:
-          destination: test-group-topic
-          content-type: application/json
-          group: ${data.center.id}
-          binder: kafka
         confirmDataCenter-in-0:
           destination: confirm_data_center
           content-type: application/json
@@ -44,4 +39,4 @@ spring:
           group: ${data.center.id}
           binder: kafka
       function:
-        definition: testConsumer;confirmDataCenter;generateKey
+        definition: confirmDataCenter;generateKey

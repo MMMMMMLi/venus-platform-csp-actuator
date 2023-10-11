@@ -1,4 +1,4 @@
-package com.csp.actuator.device.utils;
+package com.csp.actuator.utils;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.crypto.params.ECDomainParameters;

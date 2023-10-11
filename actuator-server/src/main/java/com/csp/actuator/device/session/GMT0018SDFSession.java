@@ -3,8 +3,8 @@ package com.csp.actuator.device.session;
 
 import com.csp.actuator.device.bean.HsmDeviceDTO;
 import com.csp.actuator.device.exception.DeviceException;
-import com.csp.actuator.device.utils.EncodeConvertUtil;
-import com.csp.actuator.device.utils.Padding;
+import com.csp.actuator.utils.EncodeConvertUtil;
+import com.csp.actuator.utils.Padding;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;

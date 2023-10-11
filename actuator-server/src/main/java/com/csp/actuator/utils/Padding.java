@@ -1,4 +1,4 @@
-package com.csp.actuator.device.utils;
+package com.csp.actuator.utils;
 
 /**
  * @author Weijia Jiang
