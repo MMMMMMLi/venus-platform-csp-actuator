@@ -25,5 +25,33 @@ public class TopicNameConstant {
      */
     public static final String CONFIRM_DATA_CENTER_CALL_BACK = "confirm_data_center_call_back";
 
+    /**
+     * 创建密钥
+     */
+    public static final String GENERATE_KEY = "generate_key";
 
+    /**
+     * 创建密钥回调
+     */
+    public static final String GENERATE_KEY_CALL_BACK = "generate_key_call_back";
+
+    /**
+     * 销毁密钥
+     */
+    public static final String DESTROY_KEY = "destroy_key";
+
+    /**
+     * 销毁密钥回调
+     */
+    public static final String DESTROY_KEY_CALL_BACK = "destroy_key_call_back";
+
+    /**
+     * 同步密钥
+     */
+    public static final String SYNC_KEY = "sync_key";
+
+    /**
+     * 同步密钥回调
+     */
+    public static final String SYNC_KEY_CALL_BACK = "sync_key_call_back";
 }
