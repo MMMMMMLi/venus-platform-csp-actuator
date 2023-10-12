@@ -3,9 +3,9 @@ package com.csp.actuator.device.factory.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.tass.hsm.GHSMAPI;
 
+import com.csp.actuator.api.entity.RemoveKeyInfo;
 import com.csp.actuator.device.DeviceInstanceHelper;
 import com.csp.actuator.api.entity.GenerateKeyResult;
-import com.csp.actuator.device.bean.RemoveKeyInfo;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.VendorConstant;
 import com.csp.actuator.device.enums.GlobalAlgTypeEnum;

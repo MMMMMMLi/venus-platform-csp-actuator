@@ -24,4 +24,9 @@ public class TopicBingingName {
      * 创建密钥回调
      */
     public static final String GENERATE_KEY_CALL_BACK_BINGING_NAME = "generateKeyCallBack-out-0";
+
+    /**
+     * 销毁密钥回调
+     */
+    public static final String DESTROY_KEY_CALL_BACK_BINGING_NAME = "destroyKeyCallBack-out-0";
 }

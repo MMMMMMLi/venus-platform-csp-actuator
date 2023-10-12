@@ -70,4 +70,9 @@ public class KeyInfoKeyConstant {
      */
     public static final String KEK_KEY_CV = "kek_key_cv";
 
+    /**
+     * 密钥最大索引数量
+     */
+    public static final String KEY_INDEX_MAX_NUMS = "key_index_max_nums";
+
 }

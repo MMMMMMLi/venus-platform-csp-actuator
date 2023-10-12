@@ -1,4 +1,4 @@
-package com.csp.actuator.device.bean;
+package com.csp.actuator.api.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +18,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RemoveKeyInfo {
+
+    /**
+     * 密钥ID
+     */
+    private String keyId;
 
     /**
      * 密钥类型

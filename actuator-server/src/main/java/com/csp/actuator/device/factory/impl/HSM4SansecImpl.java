@@ -1,8 +1,8 @@
 package com.csp.actuator.device.factory.impl;
 
 import com.csp.actuator.api.entity.GenerateKeyResult;
+import com.csp.actuator.api.entity.RemoveKeyInfo;
 import com.csp.actuator.device.DeviceInstanceHelper;
-import com.csp.actuator.device.bean.RemoveKeyInfo;
 import com.csp.actuator.device.contants.GlobalUsedTypeCodeConstant;
 import com.csp.actuator.device.enums.GlobalAlgLengthEnum;
 import com.csp.actuator.device.exception.DeviceException;

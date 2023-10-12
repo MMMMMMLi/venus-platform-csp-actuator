@@ -45,4 +45,9 @@ public class GenerateKeyResult {
      * 密钥标签
      */
     private String keyLabel;
+
+    /**
+     * 密钥索引
+     */
+    private Integer keyIndex;
 }

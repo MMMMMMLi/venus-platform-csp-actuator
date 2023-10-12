@@ -2,7 +2,7 @@ package com.csp.actuator.device.factory;
 
 
 import com.csp.actuator.api.entity.GenerateKeyResult;
-import com.csp.actuator.device.bean.RemoveKeyInfo;
+import com.csp.actuator.api.entity.RemoveKeyInfo;
 import com.csp.actuator.device.contants.GlobalAlgTypeCodeConstant;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.GlobalUsedTypeCodeConstant;

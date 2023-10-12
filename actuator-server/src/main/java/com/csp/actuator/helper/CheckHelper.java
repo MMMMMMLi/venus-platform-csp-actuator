@@ -3,11 +3,13 @@ package com.csp.actuator.helper;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import com.csp.actuator.api.base.DataCenterInfo;
+import com.csp.actuator.api.entity.RemoveKeyInfo;
 import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.config.DataCenterConfig;
 import com.csp.actuator.exception.ActuatorException;
 import com.csp.actuator.utils.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -71,6 +73,19 @@ public class CheckHelper {
             return false;
         }
         return true;
+    }
+
+    static void checkDestroyKeyInfo(RemoveKeyInfo keyInfo) {
+        // 校验密钥信息是不是空的
+        if (Objects.isNull(keyInfo)) {
+            throw new ActuatorException(ERROR_DESTROY_KEY_INFO_NOT_FOUND);
+        }
+        if (Objects.isNull(keyInfo.getKeyIndex())) {
+            throw new ActuatorException(ERROR_DESTROY_KEY_INFO_NOT_FOUND);
+        }
+        if (StringUtils.isBlank(keyInfo.getKeyId())) {
+            throw new ActuatorException(ERROR_DESTROY_KEY_INFO_NOT_FOUND);
+        }
     }
 
     static void checkKeyInfo(Map<String, Object> keyInfo) {

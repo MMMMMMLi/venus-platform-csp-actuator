@@ -108,6 +108,8 @@ public class GenerateKeyHelper {
             return null;
         }
         Map<String, Object> keyInfo = generateKeyTopicInfo.getKeyInfo();
+        // 校验一下索引值
+        Integer keyIndex = (Integer) keyInfo.get(KEY_INDEX);
         return hsmImpl.generateAndSaveSymmetricKey(
                 (Integer) generateKeyTopicInfo.getKeyInfo().get(KEY_ALG_TYPE),
                 (Integer) keyInfo.get(KEY_INDEX),

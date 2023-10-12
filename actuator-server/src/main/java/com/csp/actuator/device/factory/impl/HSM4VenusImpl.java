@@ -2,10 +2,9 @@ package com.csp.actuator.device.factory.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.extra.spring.SpringUtil;
-
-import com.csp.actuator.device.DeviceInstanceHelper;
 import com.csp.actuator.api.entity.GenerateKeyResult;
-import com.csp.actuator.device.bean.RemoveKeyInfo;
+import com.csp.actuator.api.entity.RemoveKeyInfo;
+import com.csp.actuator.device.DeviceInstanceHelper;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.VendorConstant;
 import com.csp.actuator.device.enums.GlobalAlgLengthEnum;
@@ -15,7 +14,6 @@ import com.csp.actuator.device.enums.GlobalUsedTypeCodeEnum;
 import com.csp.actuator.device.exception.DeviceException;
 import com.csp.actuator.device.factory.HSMFactory;
 import com.csp.actuator.device.session.GMT0018SDFSession;
-import com.csp.actuator.device.session.HsmSession;
 import com.csp.actuator.device.session.VenusHsmSession;
 import com.csp.actuator.utils.DataCenterKeyUtil;
 import com.csp.actuator.utils.SM4Util;
@@ -29,8 +27,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.csp.actuator.device.contants.HsmFunctionConstant.*;
 import static com.csp.actuator.device.contants.GlobalTypeCodeConstant.ERROR_KEY;
+import static com.csp.actuator.device.contants.HsmFunctionConstant.*;
 
 
 

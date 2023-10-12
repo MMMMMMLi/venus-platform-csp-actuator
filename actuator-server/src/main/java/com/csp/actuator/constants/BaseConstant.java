@@ -14,6 +14,7 @@ public class BaseConstant {
 
     public static final String ERROR_OPERATION_NOT_FOUND = "操作设备接口类型未找到";
     public static final String ERROR_KEY_INFO_NOT_FOUND = "创建密钥属性为空，请检查重试";
+    public static final String ERROR_DESTROY_KEY_INFO_NOT_FOUND = "销毁密钥属性为空，请检查重试";
     public static final String ERROR_KEY_DEV_MODEL_CODE_NOT_FOUND = "设备类型编码为空，请检查重试";
     public static final String ERROR_KEY_DEV_INFO_NOT_FOUND = "设备信息为空，请检查重试";
     public static final String ERROR_DATA_CENTER_ID_NOT_FOUND = "数据中心配置未找到";
