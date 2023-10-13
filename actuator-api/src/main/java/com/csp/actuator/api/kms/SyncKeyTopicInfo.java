@@ -1,6 +1,7 @@
 package com.csp.actuator.api.kms;
 
 import com.csp.actuator.api.base.DataCenterInfo;
+import com.csp.actuator.api.entity.DeviceIpPortInfo;
 import com.csp.actuator.api.entity.RemoveKeyInfo;
 import com.csp.actuator.api.entity.SyncGenerateKeyInfo;
 import lombok.AllArgsConstructor;
@@ -32,12 +33,12 @@ public class SyncKeyTopicInfo extends DataCenterInfo {
     /**
      * 需要创建密钥的设备列表
      */
-    private List<String> syncDeviceList;
+    private List<DeviceIpPortInfo> syncDeviceList;
 
     /**
      * 需要销毁密钥的设备列表
      */
-    private List<String> freedDeviceList;
+    private List<DeviceIpPortInfo> freedDeviceList;
 
     /**
      * 设备内最大的非对称密钥数量
