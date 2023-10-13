@@ -12,12 +12,19 @@ logging:
   level:
     org.apache.kafka: warn
 
+# kms地址
+kms:
+#  address: default
+  address: "http://172.20.88.229:8007"
+  secret: 0D9Qe30GIMm6oYTcDTuRQgRy7G7R6AMm
+
+# 数据中心地址
 data:
   center:
     id: default1
     name: default1
 
-#  定时上报为启动之后的10min为第一次，后续每30min上报一次
+# 定时上报为启动之后的10min为第一次，后续每30min上报一次
 node:
   report:
     initialDelay: 10

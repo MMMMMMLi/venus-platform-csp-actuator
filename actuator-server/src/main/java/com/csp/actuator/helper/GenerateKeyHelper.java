@@ -2,6 +2,7 @@ package com.csp.actuator.helper;
 
 import com.csp.actuator.api.enums.DeviceOperationInterfaceEnum;
 import com.csp.actuator.api.kms.GenerateKeyTopicInfo;
+import com.csp.actuator.constants.ErrorMessage;
 import com.csp.actuator.device.FactoryBuilder;
 import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
@@ -13,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 import static com.csp.actuator.api.constants.KeyInfoKeyConstant.*;
-import static com.csp.actuator.constants.BaseConstant.*;
 import static com.csp.actuator.device.contants.GlobalExportKeyAlgTypeCodeConstant.EXPORT_KEY_ALG_TYPE_CBC;
 
 /**
@@ -38,7 +38,7 @@ public class GenerateKeyHelper {
         // 获取操作码
         DeviceOperationInterfaceEnum operationInfo = DeviceOperationInterfaceEnum.getGenerateKeyEnum(generateKeyTopicInfo.getOperation());
         if (Objects.isNull(operationInfo)) {
-            throw new ActuatorException(ERROR_OPERATION_NOT_FOUND);
+            throw new ActuatorException(ErrorMessage.ERROR_OPERATION_NOT_FOUND);
         }
         // 校验设备编码
         CheckHelper.checkDevModelCode(generateKeyTopicInfo.getDevModelCode());
@@ -114,7 +114,7 @@ public class GenerateKeyHelper {
         Integer maxKeyNums = (Integer) keyInfo.get(KEY_INDEX_MAX_NUMS);
         if (Objects.isNull(keyIndex) || keyIndex == 0) {
             if (Objects.isNull(maxKeyNums) || maxKeyNums == 0) {
-                throw new ActuatorException(ERROR_GET_KEY_INDEX_FAILED);
+                throw new ActuatorException(ErrorMessage.ERROR_GET_KEY_INDEX_FAILED);
             }
             keyIndex = DeviceHelper.getOneAvailableKeyIndexList(devModelCode, GlobalTypeCodeConstant.SYMMETRIC_KEY, 0, deviceList, maxKeyNums);
         }
@@ -215,7 +215,7 @@ public class GenerateKeyHelper {
         Integer keyUseType = (Integer) keyInfo.get(KEY_USAGE);
         if (Objects.isNull(keyIndex) || keyIndex == 0) {
             if (Objects.isNull(maxKeyNums) || maxKeyNums == 0) {
-                throw new ActuatorException(ERROR_GET_KEY_INDEX_FAILED);
+                throw new ActuatorException(ErrorMessage.ERROR_GET_KEY_INDEX_FAILED);
             }
             keyIndex = DeviceHelper.getOneAvailableKeyIndexList(devModelCode, GlobalTypeCodeConstant.ECC_KEY, keyUseType, deviceList, maxKeyNums);
         }
@@ -243,7 +243,7 @@ public class GenerateKeyHelper {
         Integer maxKeyNums = (Integer) keyInfo.get(KEY_INDEX_MAX_NUMS);
         if (Objects.isNull(keyIndex) || keyIndex == 0) {
             if (Objects.isNull(maxKeyNums) || maxKeyNums == 0) {
-                throw new ActuatorException(ERROR_GET_KEY_INDEX_FAILED);
+                throw new ActuatorException(ErrorMessage.ERROR_GET_KEY_INDEX_FAILED);
             }
             keyIndex = DeviceHelper.getOneAvailableKeyIndexList(devModelCode, GlobalTypeCodeConstant.ECC_KEY, 0, deviceList, maxKeyNums);
         }

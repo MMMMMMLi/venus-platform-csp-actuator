@@ -4,6 +4,7 @@ import com.csp.actuator.api.enums.CallBackStatusEnum;
 import com.csp.actuator.api.kms.GenerateKeyCallBackTopicInfo;
 import com.csp.actuator.api.kms.GenerateKeyTopicInfo;
 import com.csp.actuator.api.utils.JsonUtils;
+import com.csp.actuator.constants.ErrorMessage;
 import com.csp.actuator.constants.TopicBingingName;
 import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.helper.CheckHelper;
@@ -16,8 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import static com.csp.actuator.constants.BaseConstant.*;
 
 /**
  * 创建密钥Consumer
@@ -53,7 +52,7 @@ public class GenerateKeyConsumer {
             log.info("GenerateKeyTopicInfo :{}", generateKeyTopicInfo);
             // 执行创建操作
             GenerateKeyResult generateKeyResult = null;
-            String message = DEFAULT_SUCCESS_MESSAGE;
+            String message = ErrorMessage.DEFAULT_SUCCESS_MESSAGE;
             try {
                 generateKeyResult = GenerateKeyHelper.generateKey(generateKeyTopicInfo);
             } catch (Exception e) {
@@ -64,7 +63,7 @@ public class GenerateKeyConsumer {
             callBackTopicInfo.setKeyId(generateKeyTopicInfo.getKeyId());
             if (Objects.isNull(generateKeyResult)) {
                 callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
-                callBackTopicInfo.setMessage(DEFAULT_FAILED_MESSAGE);
+                callBackTopicInfo.setMessage(ErrorMessage.DEFAULT_FAILED_MESSAGE);
                 callBackTopicInfo.setGenerateKeyResult(new GenerateKeyResult());
             } else {
                 callBackTopicInfo.setStatus(CallBackStatusEnum.SUCCESS.ordinal());

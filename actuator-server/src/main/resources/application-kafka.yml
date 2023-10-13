@@ -3,7 +3,7 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: 172.20.81.156:9092
+          brokers: 172.20.88.141:9092
       bindings:
         # 测试
         testProducer-out-0:

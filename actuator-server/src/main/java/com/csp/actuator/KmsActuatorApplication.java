@@ -1,6 +1,10 @@
 package com.csp.actuator;
 
+import cn.hutool.http.Header;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import com.csp.actuator.api.enums.ActuatorStatusEnum;
+import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.report.NodeReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -21,12 +25,38 @@ public class KmsActuatorApplication {
         if (NodeReport.dataCenterInfoIsError(dataCenterId)) {
             log.error("Custom property 'data.center.id' not setting. Stopping application.");
             System.exit(1);
+        } else {
+            log.info("Custom property 'data.center.id' settings completed.");
         }
         String dataCenterName = environment.getProperty("data.center.name");
         if (NodeReport.dataCenterInfoIsError(dataCenterName)) {
             log.error("Custom property 'data.center.name' not setting. Stopping application.");
             System.exit(1);
+        } else {
+            log.info("Custom property 'data.center.name' settings completed.");
         }
+        // 校验kms地址
+        String kmsAddress = environment.getProperty("kms.address");
+        if (NodeReport.dataCenterInfoIsError(kmsAddress)) {
+            log.error("Custom property 'kms.address' not setting. Stopping application.");
+            System.exit(1);
+        } else {
+            log.info("Custom property 'kms.address' settings completed.");
+        }
+        String kmsSecret = environment.getProperty("kms.secret");
+        if (NodeReport.dataCenterInfoIsError(kmsSecret)) {
+            log.error("Custom property 'kms.secret' not setting. Stopping application.");
+            System.exit(1);
+        } else {
+            log.info("Custom property 'kms.secret' settings completed.");
+        }
+//        // 获取密钥
+//        if (!DataCenterKeyCache.initDataCenterKey(kmsAddress, kmsSecret)) {
+//            log.error("InitDataCenterKey failed. Stopping application.");
+//            System.exit(1);
+//        } else {
+//            log.info("DataCenterKey settings completed.");
+//        }
         log.info("\n-------------------------------------------------------------------------\n\t" +
                 "Actuator Server Successfully started ...\n\t" +
                 "DataCenterId :\t" + dataCenterId + "\n\t" +

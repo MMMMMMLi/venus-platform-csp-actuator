@@ -1,28 +1,23 @@
 package com.csp.actuator.message.consumer;
 
-import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.api.entity.RemoveKeyInfo;
 import com.csp.actuator.api.enums.CallBackStatusEnum;
 import com.csp.actuator.api.kms.DestroyKeyCallBackTopicInfo;
 import com.csp.actuator.api.kms.DestroyKeyTopicInfo;
-import com.csp.actuator.api.kms.GenerateKeyCallBackTopicInfo;
-import com.csp.actuator.api.kms.GenerateKeyTopicInfo;
 import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.constants.TopicBingingName;
 import com.csp.actuator.helper.CheckHelper;
 import com.csp.actuator.helper.DestroyKeyHelper;
-import com.csp.actuator.helper.GenerateKeyHelper;
 import com.csp.actuator.message.producer.MessageProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.csp.actuator.constants.BaseConstant.DEFAULT_FAILED_MESSAGE;
-import static com.csp.actuator.constants.BaseConstant.DEFAULT_SUCCESS_MESSAGE;
+import static com.csp.actuator.constants.ErrorMessage.DEFAULT_FAILED_MESSAGE;
+import static com.csp.actuator.constants.ErrorMessage.DEFAULT_SUCCESS_MESSAGE;
 
 /**
  * 密钥销毁消费者

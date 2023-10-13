@@ -1,16 +1,12 @@
 package com.csp.actuator.message.consumer;
 
 import com.csp.actuator.api.entity.DeviceSyncKeyResult;
-import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.api.enums.CallBackStatusEnum;
-import com.csp.actuator.api.kms.GenerateKeyCallBackTopicInfo;
-import com.csp.actuator.api.kms.GenerateKeyTopicInfo;
 import com.csp.actuator.api.kms.SyncKeyCallBackTopicInfo;
 import com.csp.actuator.api.kms.SyncKeyTopicInfo;
 import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.constants.TopicBingingName;
 import com.csp.actuator.helper.CheckHelper;
-import com.csp.actuator.helper.GenerateKeyHelper;
 import com.csp.actuator.helper.SyncKeyHelper;
 import com.csp.actuator.message.producer.MessageProducer;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +17,8 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.csp.actuator.constants.BaseConstant.DEFAULT_FAILED_MESSAGE;
-import static com.csp.actuator.constants.BaseConstant.DEFAULT_SUCCESS_MESSAGE;
+import static com.csp.actuator.constants.ErrorMessage.DEFAULT_FAILED_MESSAGE;
+import static com.csp.actuator.constants.ErrorMessage.DEFAULT_SUCCESS_MESSAGE;
 
 /**
  * 密钥同步Consumer

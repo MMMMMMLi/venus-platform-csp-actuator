@@ -8,7 +8,7 @@ import com.csp.actuator.device.enums.GlobalAlgLengthEnum;
 import com.csp.actuator.device.exception.DeviceException;
 import com.csp.actuator.device.factory.HSMFactory;
 import com.csp.actuator.device.session.GMT0018SDFSession;
-import com.csp.actuator.utils.DataCenterKeyUtil;
+import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.utils.SM4Util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -56,7 +56,7 @@ public class HSM4SansecImpl implements HSMFactory {
             }
             log.info("HSM4SansecImpl generateSymmetricKey success, key length = {}", data.length);
             // 使用软密钥加密保存
-            data = SM4Util.encrypt(DataCenterKeyUtil.getDataCenterKey(), data);
+            data = SM4Util.encrypt(DataCenterKeyCache.getDataCenterKey(), data);
             return GenerateKeyResult.builder()
                     .keyValue(Base64.getEncoder().encodeToString(data))
                     .build();
@@ -95,7 +95,7 @@ public class HSM4SansecImpl implements HSMFactory {
             sessionList.forEach(session -> session.execute(inputParam));
             log.info("SWMF_InputKEK success...");
             // 使用软密钥加密保存
-            data = SM4Util.encrypt(DataCenterKeyUtil.getDataCenterKey(), data);
+            data = SM4Util.encrypt(DataCenterKeyCache.getDataCenterKey(), data);
             return GenerateKeyResult.builder()
                     .keyValue(Base64.getEncoder().encodeToString(data))
                     .build();
@@ -138,7 +138,7 @@ public class HSM4SansecImpl implements HSMFactory {
         GMT0018SDFSession snasecSession = DeviceInstanceHelper.getOneSansecHSMInstance(devicePostList);
         try {
             // 第一步，通过软密钥，解密应用kek
-            byte[] decryptProKeyInfoBytes = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), proKeyInfo);
+            byte[] decryptProKeyInfoBytes = SM4Util.decrypt(DataCenterKeyCache.getDataCenterKey(), proKeyInfo);
 
             // 第二步、将解密完的明文，导入并保存到业务密码机里去，索引固定用10
             Integer proKeyIndex = 10;
@@ -193,7 +193,7 @@ public class HSM4SansecImpl implements HSMFactory {
         List<GMT0018SDFSession> sessionList = DeviceInstanceHelper.getSansecHSSMInstance(devicePostList);
         try {
             // 导入的是KEK密钥，KEK密钥由软算法加密，需要解密。
-            byte[] decryptData = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), cipherByLMK);
+            byte[] decryptData = SM4Util.decrypt(DataCenterKeyCache.getDataCenterKey(), cipherByLMK);
             log.info("SDF_DeDEK success, next execute SWMF_InputKEK...");
 
             // 长度
@@ -351,7 +351,7 @@ public class HSM4SansecImpl implements HSMFactory {
             System.arraycopy(pubKey, 96, newPubKey, 32, 32);
 
             // 第一步，通过软密钥解密应用kek
-            byte[] decryptProKeyInfoBytes = SM4Util.decrypt(DataCenterKeyUtil.getDataCenterKey(), proKeyInfo);
+            byte[] decryptProKeyInfoBytes = SM4Util.decrypt(DataCenterKeyCache.getDataCenterKey(), proKeyInfo);
 
             // 第二步、将解密完的明文，导入并保存到业务密码机里去，索引固定用10
             Integer proKeyIndex = 10;

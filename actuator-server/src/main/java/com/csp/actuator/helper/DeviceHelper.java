@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.csp.actuator.constants.BaseConstant.ERROR_KEY_NO_KEY_INDEX;
+import static com.csp.actuator.constants.ErrorMessage.ERROR_KEY_NO_KEY_INDEX;
 import static com.csp.actuator.constants.BaseConstant.GLOBAL_LMK_KEYINDEX;
 
 /**
