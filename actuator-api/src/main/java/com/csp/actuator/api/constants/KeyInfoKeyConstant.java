@@ -38,7 +38,7 @@ public class KeyInfoKeyConstant {
     /**
      * 密钥算法类型
      */
-    public static final String KEY_ALG_TYPE = "key_alg_type";
+    public static final String KEY_ALG_TYPE = "global_key_alg_type";
 
     /**
      * 密钥向量值
@@ -68,7 +68,7 @@ public class KeyInfoKeyConstant {
     /**
      * KEK密钥算法类型
      */
-    public static final String KEK_KEY_ALG_TYPE = "kek_key_alg_type";
+    public static final String KEK_KEY_ALG_TYPE = "kek_global_key_alg_type";
 
     /**
      * KEK密钥校验值
