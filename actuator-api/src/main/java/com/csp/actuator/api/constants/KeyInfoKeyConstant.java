@@ -21,6 +21,11 @@ public class KeyInfoKeyConstant {
     public static final String KEY_VALUE = "key_value";
 
     /**
+     * 密钥CV
+     */
+    public static final String KEY_CV = "key_cv";
+
+    /**
      * 密钥类型
      */
     public static final String KEY_TYPE = "global_key_type";

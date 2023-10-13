@@ -3,11 +3,8 @@ package com.csp.actuator.utils;
 import com.csp.actuator.config.DataCenterConfig;
 import com.csp.actuator.exception.ActuatorException;
 import com.csp.actuator.report.NodeReport;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 import static com.csp.actuator.constants.BaseConstant.ERROR_DATA_CENTER_ID_NOT_FOUND;
 
@@ -26,7 +23,10 @@ public class DataCenterKeyUtil {
         if (NodeReport.dataCenterInfoIsError(centerConfig.getId())) {
             throw new ActuatorException(ERROR_DATA_CENTER_ID_NOT_FOUND);
         }
-        return confuseDataCenter(centerConfig.getId());
+        byte[] oldKey = confuseDataCenter(centerConfig.getId());
+        byte[] centerKey = new byte[16];
+        System.arraycopy(oldKey, 0, centerKey, 0, 16);
+        return centerKey;
     }
 
     /**
@@ -51,6 +51,6 @@ public class DataCenterKeyUtil {
         }
         String newString = new String(chars);
         newString = newString + "4X2X8;Qeb*d#_W$?&mz)8#*rgOb6zxDn";
-        return DigestUtils.md5Digest(newString.getBytes(StandardCharsets.UTF_8));
+        return SM3Util.hash(newString.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -45,4 +45,17 @@ public enum DeviceOperationInterfaceEnum {
         }
         return null;
     }
+
+    public static DeviceOperationInterfaceEnum getImportKeyEnum(Integer operationIndex) {
+        List<Integer> generateKeyEnumIndexList = new ArrayList<Integer>() {{
+            add(importSymmetricKey.ordinal());
+            add(importSymmetricKey4KekIndex.ordinal());
+            add(importSM2Key.ordinal());
+
+        }};
+        if (generateKeyEnumIndexList.contains(operationIndex)) {
+            return DeviceOperationInterfaceEnum.values()[operationIndex];
+        }
+        return null;
+    }
 }

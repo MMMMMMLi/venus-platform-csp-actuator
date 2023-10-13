@@ -31,6 +31,10 @@ spring:
           destination: destroy_key_call_back
           content-type: application/json
           binder: kafka
+        syncKeyCallBack-out-0:
+          destination: sync_key_call_back
+          content-type: application/json
+          binder: kafka
         # 消息消费者
         confirmDataCenter-in-0:
           destination: confirm_data_center
@@ -47,5 +51,10 @@ spring:
           content-type: application/json
           group: ${data.center.id}
           binder: kafka
+        syncKey-in-0:
+          destination: sync_key
+          content-type: application/json
+          group: ${data.center.id}
+          binder: kafka
       function:
-        definition: confirmDataCenter;generateKey;destroyKey
+        definition: confirmDataCenter;generateKey;destroyKey;syncKey

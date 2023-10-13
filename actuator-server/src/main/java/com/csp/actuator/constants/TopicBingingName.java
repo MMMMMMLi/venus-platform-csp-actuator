@@ -29,4 +29,9 @@ public class TopicBingingName {
      * 销毁密钥回调
      */
     public static final String DESTROY_KEY_CALL_BACK_BINGING_NAME = "destroyKeyCallBack-out-0";
+
+    /**
+     * 密钥同步回调
+     */
+    public static final String SYNC_KEY_CALL_BACK_BINGING_NAME = "syncKeyCallBack-out-0";
 }
