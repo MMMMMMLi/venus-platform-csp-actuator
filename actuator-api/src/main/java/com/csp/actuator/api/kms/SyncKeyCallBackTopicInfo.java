@@ -1,5 +1,11 @@
 package com.csp.actuator.api.kms;
 
+import com.csp.actuator.api.entity.DeviceSyncKeyResult;
+import com.csp.actuator.api.entity.GenerateKeyResult;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * 密钥同步回调Topic实体
  *
@@ -8,5 +14,28 @@ package com.csp.actuator.api.kms;
  * @description 密钥同步回调Topic实体
  * @date Created in 2023-10-13 10:34
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SyncKeyCallBackTopicInfo {
+
+    /**
+     * 操作状态
+     */
+    private Integer status;
+
+    /**
+     * 操作结果信息
+     */
+    private String message;
+
+    /**
+     * 操作时间
+     */
+    private Long date;
+
+    /**
+     * 同步信息
+     */
+    private DeviceSyncKeyResult deviceSyncKeyResult;
 }

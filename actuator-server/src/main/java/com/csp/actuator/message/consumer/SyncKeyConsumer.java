@@ -1,9 +1,11 @@
 package com.csp.actuator.message.consumer;
 
+import com.csp.actuator.api.entity.DeviceSyncKeyResult;
 import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.api.enums.CallBackStatusEnum;
 import com.csp.actuator.api.kms.GenerateKeyCallBackTopicInfo;
 import com.csp.actuator.api.kms.GenerateKeyTopicInfo;
+import com.csp.actuator.api.kms.SyncKeyCallBackTopicInfo;
 import com.csp.actuator.api.kms.SyncKeyTopicInfo;
 import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.constants.TopicBingingName;
@@ -55,27 +57,25 @@ public class SyncKeyConsumer {
             SyncKeyTopicInfo syncKeyTopicInfo = JsonUtils.readValue(msg, SyncKeyTopicInfo.class);
             log.info("SyncKeyTopicInfo :{}", syncKeyTopicInfo);
             // 执行创建操作
-            GenerateKeyResult generateKeyResult = null;
+            DeviceSyncKeyResult generateKeyResult = null;
             String message = DEFAULT_SUCCESS_MESSAGE;
             try {
                 generateKeyResult = SyncKeyHelper.syncKey(syncKeyTopicInfo);
             } catch (Exception e) {
                 log.error("GenerateKey failed, e: {}", message = e.getMessage());
             }
-            GenerateKeyCallBackTopicInfo callBackTopicInfo = new GenerateKeyCallBackTopicInfo();
+            SyncKeyCallBackTopicInfo callBackTopicInfo = new SyncKeyCallBackTopicInfo();
             callBackTopicInfo.setDate(System.currentTimeMillis());
-            callBackTopicInfo.setKeyId(syncKeyTopicInfo.getKeyId());
+            callBackTopicInfo.setDeviceSyncKeyResult(generateKeyResult);
             if (Objects.isNull(generateKeyResult)) {
                 callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
                 callBackTopicInfo.setMessage(DEFAULT_FAILED_MESSAGE);
-                callBackTopicInfo.setGenerateKeyResult(new GenerateKeyResult());
             } else {
                 callBackTopicInfo.setStatus(CallBackStatusEnum.SUCCESS.ordinal());
                 callBackTopicInfo.setMessage(message);
-                callBackTopicInfo.setGenerateKeyResult(generateKeyResult);
             }
-            log.info("GenerateKeyCallBackTopicInfo : {}", callBackTopicInfo);
-            if (messageProducer.producerMessage(TopicBingingName.GENERATE_KEY_CALL_BACK_BINGING_NAME, callBackTopicInfo)) {
+            log.info("SyncKeyCallBackTopicInfo : {}", callBackTopicInfo);
+            if (messageProducer.producerMessage(TopicBingingName.SYNC_KEY_CALL_BACK_BINGING_NAME, callBackTopicInfo)) {
                 log.info("SyncKey CallBack Success...");
             } else {
                 log.error("SyncKey CallBack Failed...");

@@ -52,9 +52,10 @@ public class ImportKeyHelper {
             case importSymmetricKey4KekIndex:
                 return importSymmetricKey4KekIndex(importKeyInfo);
             case importSM2Key:
-                return importSM2Key(importKeyInfo);
+                importSM2Key(importKeyInfo);
+                return true;
             default:
-                return null;
+                return false;
         }
     }
 
@@ -76,7 +77,6 @@ public class ImportKeyHelper {
                 importKeyInfo.getDeviceList());
     }
 
-
     /**
      * 导入对称密钥
      */
@@ -93,6 +93,27 @@ public class ImportKeyHelper {
                 (Integer) keyInfo.get(KeyInfoKeyConstant.KEY_ALG_TYPE),
                 (String) keyInfo.get(KeyInfoKeyConstant.KEY_VALUE),
                 (String) keyInfo.get(KeyInfoKeyConstant.KEY_CV),
+                importKeyInfo.getDeviceList());
+    }
+
+    /**
+     * 导入SM2非对称密钥到密码机
+     */
+    public static void importSM2Key(ImportKeyInfo importKeyInfo) {
+        // 获取出指定厂商服务器密码机实现类
+        HSMFactory hsmImpl = FactoryBuilder.getHsmImpl(importKeyInfo.getDevModelCode());
+        if (Objects.isNull(hsmImpl)) {
+            return;
+        }
+        Map<String, Object> keyInfo = importKeyInfo.getKeyInfo();
+        hsmImpl.importSM2Key(
+                (Integer) keyInfo.get(KeyInfoKeyConstant.KEK_INDEX),
+                (Integer) keyInfo.get(KeyInfoKeyConstant.KEY_TYPE),
+                (String) keyInfo.get(KeyInfoKeyConstant.KEY_VALUE),
+                (Integer) keyInfo.get(KeyInfoKeyConstant.KEY_INDEX),
+                (Integer) keyInfo.get(KeyInfoKeyConstant.KEY_USAGE),
+                (String) keyInfo.get(KeyInfoKeyConstant.KEY_LABEL),
+                importKeyInfo.getKeyId(),
                 importKeyInfo.getDeviceList());
     }
 
