@@ -14,8 +14,8 @@ logging:
 
 # kms地址
 kms:
-#  address: default
-  address: "http://172.20.88.229:8007"
+  address: default
+#  address: "http://172.20.88.229:8007"
   secret: 0D9Qe30GIMm6oYTcDTuRQgRy7G7R6AMm
 
 # 数据中心地址

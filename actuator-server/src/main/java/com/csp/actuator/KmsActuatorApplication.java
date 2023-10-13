@@ -50,13 +50,13 @@ public class KmsActuatorApplication {
         } else {
             log.info("Custom property 'kms.secret' settings completed.");
         }
-//        // 获取密钥
-//        if (!DataCenterKeyCache.initDataCenterKey(kmsAddress, kmsSecret)) {
-//            log.error("InitDataCenterKey failed. Stopping application.");
-//            System.exit(1);
-//        } else {
-//            log.info("DataCenterKey settings completed.");
-//        }
+        // 获取密钥
+        if (!DataCenterKeyCache.initDataCenterKey(kmsAddress, kmsSecret)) {
+            log.error("InitDataCenterKey failed. Stopping application.");
+            System.exit(1);
+        } else {
+            log.info("DataCenterKey settings completed.");
+        }
         log.info("\n-------------------------------------------------------------------------\n\t" +
                 "Actuator Server Successfully started ...\n\t" +
                 "DataCenterId :\t" + dataCenterId + "\n\t" +
