@@ -35,28 +35,28 @@ public class KmsActuatorApplication {
         } else {
             log.info("Custom property 'data.center.name' settings completed.");
         }
-        // 校验kms地址
-        String kmsAddress = environment.getProperty("kms.address");
-        if (NodeReport.dataCenterInfoIsError(kmsAddress)) {
-            log.error("Custom property 'kms.address' not setting. Stopping application.");
-            System.exit(1);
-        } else {
-            log.info("Custom property 'kms.address' settings completed.");
-        }
-        String kmsSecret = environment.getProperty("kms.secret");
-        if (NodeReport.dataCenterInfoIsError(kmsSecret)) {
-            log.error("Custom property 'kms.secret' not setting. Stopping application.");
-            System.exit(1);
-        } else {
-            log.info("Custom property 'kms.secret' settings completed.");
-        }
-        // 获取密钥
-        if (!DataCenterKeyCache.initDataCenterKey(kmsAddress, kmsSecret)) {
-            log.error("InitDataCenterKey failed. Stopping application.");
-            System.exit(1);
-        } else {
-            log.info("DataCenterKey settings completed.");
-        }
+//        // 校验kms地址
+//        String kmsAddress = environment.getProperty("kms.address");
+//        if (NodeReport.dataCenterInfoIsError(kmsAddress)) {
+//            log.error("Custom property 'kms.address' not setting. Stopping application.");
+//            System.exit(1);
+//        } else {
+//            log.info("Custom property 'kms.address' settings completed.");
+//        }
+//        String kmsSecret = environment.getProperty("kms.secret");
+//        if (NodeReport.dataCenterInfoIsError(kmsSecret)) {
+//            log.error("Custom property 'kms.secret' not setting. Stopping application.");
+//            System.exit(1);
+//        } else {
+//            log.info("Custom property 'kms.secret' settings completed.");
+//        }
+//        // 获取密钥
+//        if (!DataCenterKeyCache.initDataCenterKey(kmsAddress, kmsSecret)) {
+//            log.error("InitDataCenterKey failed. Stopping application.");
+//            System.exit(1);
+//        } else {
+//            log.info("DataCenterKey settings completed.");
+//        }
         log.info("\n-------------------------------------------------------------------------\n\t" +
                 "Actuator Server Successfully started ...\n\t" +
                 "DataCenterId :\t" + dataCenterId + "\n\t" +

@@ -4,6 +4,7 @@ spring:
       kafka:
         binder:
           brokers: 172.20.88.141:9092
+          auto-add-partitions: true
       bindings:
         # 测试
         testProducer-out-0:
@@ -12,6 +13,10 @@ spring:
           binder: kafka
         testConfirmDataCenter-out-0:
           destination: confirm_data_center
+          content-type: application/json
+          binder: kafka
+        testGenerateKey-out-0:
+          destination: generate_key
           content-type: application/json
           binder: kafka
         # 消息生产者

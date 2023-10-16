@@ -61,13 +61,12 @@ public class GenerateKeyConsumer {
             GenerateKeyCallBackTopicInfo callBackTopicInfo = new GenerateKeyCallBackTopicInfo();
             callBackTopicInfo.setDate(System.currentTimeMillis());
             callBackTopicInfo.setKeyId(generateKeyTopicInfo.getKeyId());
+            callBackTopicInfo.setMessage(message);
             if (Objects.isNull(generateKeyResult)) {
                 callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
-                callBackTopicInfo.setMessage(ErrorMessage.DEFAULT_FAILED_MESSAGE);
                 callBackTopicInfo.setGenerateKeyResult(new GenerateKeyResult());
             } else {
                 callBackTopicInfo.setStatus(CallBackStatusEnum.SUCCESS.ordinal());
-                callBackTopicInfo.setMessage(message);
                 callBackTopicInfo.setGenerateKeyResult(generateKeyResult);
             }
             log.info("GenerateKeyCallBackTopicInfo : {}", callBackTopicInfo);
