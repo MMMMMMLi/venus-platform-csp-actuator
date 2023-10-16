@@ -6,19 +6,6 @@ spring:
           brokers: 172.20.88.141:9092
           auto-add-partitions: true
       bindings:
-        # 测试
-        testProducer-out-0:
-          destination: test-group-topic
-          content-type: application/json
-          binder: kafka
-        testConfirmDataCenter-out-0:
-          destination: confirm_data_center
-          content-type: application/json
-          binder: kafka
-        testGenerateKey-out-0:
-          destination: generate_key
-          content-type: application/json
-          binder: kafka
         # 消息生产者
         actuatorStatusReport-out-0:
           destination: actuator_status_report
@@ -28,38 +15,11 @@ spring:
           destination: confirm_data_center_call_back
           content-type: application/json
           binder: kafka
-        generateKeyCallBack-out-0:
-          destination: generate_key_call_back
-          content-type: application/json
-          binder: kafka
-        destroyKeyCallBack-out-0:
-          destination: destroy_key_call_back
-          content-type: application/json
-          binder: kafka
-        syncKeyCallBack-out-0:
-          destination: sync_key_call_back
-          content-type: application/json
-          binder: kafka
         # 消息消费者
         confirmDataCenter-in-0:
           destination: confirm_data_center
           content-type: application/json
           group: ${data.center.id}
           binder: kafka
-        generateKey-in-0:
-          destination: generate_key
-          content-type: application/json
-          group: ${data.center.id}
-          binder: kafka
-        destroyKey-in-0:
-          destination: destroy_key
-          content-type: application/json
-          group: ${data.center.id}
-          binder: kafka
-        syncKey-in-0:
-          destination: sync_key
-          content-type: application/json
-          group: ${data.center.id}
-          binder: kafka
       function:
-        definition: confirmDataCenter;generateKey;destroyKey;syncKey
+        definition: confirmDataCenter

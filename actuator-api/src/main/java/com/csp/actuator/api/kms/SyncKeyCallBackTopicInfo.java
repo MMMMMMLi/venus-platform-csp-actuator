@@ -5,6 +5,7 @@ import com.csp.actuator.api.entity.GenerateKeyResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 密钥同步回调Topic实体
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class SyncKeyCallBackTopicInfo {
 
     /**

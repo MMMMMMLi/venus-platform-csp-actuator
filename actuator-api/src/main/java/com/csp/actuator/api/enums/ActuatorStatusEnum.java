@@ -14,7 +14,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ActuatorStatusEnum {
-    INIT,
     UPDATE,
     CLOSE,
     ;

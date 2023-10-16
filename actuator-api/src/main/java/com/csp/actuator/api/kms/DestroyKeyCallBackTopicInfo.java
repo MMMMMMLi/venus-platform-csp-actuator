@@ -4,6 +4,7 @@ import com.csp.actuator.api.entity.GenerateKeyResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 销毁密钥回调Topic实体信息
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class DestroyKeyCallBackTopicInfo {
 
     /**

@@ -13,11 +13,14 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 @Slf4j
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class KmsActuatorApplication {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
         ConfigurableApplicationContext application = SpringApplication.run(KmsActuatorApplication.class, args);
         Environment environment = application.getEnvironment();
         // 检查属性是否存在
@@ -57,16 +60,19 @@ public class KmsActuatorApplication {
 //        } else {
 //            log.info("DataCenterKey settings completed.");
 //        }
+        String ip = InetAddress.getLocalHost().getHostAddress();
+        String port = environment.getProperty("server.port");
         log.info("\n-------------------------------------------------------------------------\n\t" +
                 "Actuator Server Successfully started ...\n\t" +
-                "DataCenterId :\t" + dataCenterId + "\n\t" +
-                "DataCenterName :\t" + dataCenterName + "\n" +
+                "Access URLs:\n\t" +
+                "Local: \t\thttp://localhost:" + port + "/\n\t" +
+                "External: \thttp://" + ip + ":" + port + "/\n" +
                 "-------------------------------------------------------------------------");
         // 启动成功之后，开始上报节点信息
         log.info("执行节点启动成功，开始上报节点信息...");
         NodeReport.producerMessage(
                 NodeReport.getActuatorNodeStatusTopicInfo(
-                        dataCenterId, dataCenterName, environment.getProperty("server.port"), ActuatorStatusEnum.INIT));
+                        dataCenterId, dataCenterName, environment.getProperty("server.port"), ActuatorStatusEnum.UPDATE));
     }
 
 }

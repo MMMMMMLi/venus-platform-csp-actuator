@@ -20,4 +20,5 @@ public class ErrorMessage {
     public static final String ERROR_GET_KEY_INDEX_FAILED = "创建密钥失败，获取可用密钥信息失败";
     public static final String ERROR_DATA_CENTER_ID_NOT_FOUND = "数据中心配置未找到";
     public static final String ERROR_DATA_PARAM_NOT_FOUND = "公钥信息不能为空";
+    public static final String ERROR_DATA_FORMAT_FAILED = "处理数据异常";
 }
