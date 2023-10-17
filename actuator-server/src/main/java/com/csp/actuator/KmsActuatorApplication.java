@@ -22,6 +22,7 @@ public class KmsActuatorApplication {
 
     public static void main(String[] args) throws UnknownHostException {
         ConfigurableApplicationContext application = SpringApplication.run(KmsActuatorApplication.class, args);
+        // 一些参数校验
         Environment environment = application.getEnvironment();
         // 检查属性是否存在
         String dataCenterId = environment.getProperty("data.center.id");
@@ -71,8 +72,7 @@ public class KmsActuatorApplication {
         // 启动成功之后，开始上报节点信息
         log.info("执行节点启动成功，开始上报节点信息...");
         NodeReport.producerMessage(
-                NodeReport.getActuatorNodeStatusTopicInfo(
-                        dataCenterId, dataCenterName, environment.getProperty("server.port"), ActuatorStatusEnum.UPDATE));
+                NodeReport.getActuatorNodeStatusTopicInfo(dataCenterId, dataCenterName, port, ActuatorStatusEnum.UPDATE));
     }
 
 }
