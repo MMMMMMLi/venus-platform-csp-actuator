@@ -52,6 +52,9 @@ public class CheckHelper {
         log.info("CheckDataCenterIdAndMsgTime...");
         // 所有的消息都继承了DataCenterInfo，所以将当前msg转换成DataCenterInfo，校验一下它的数据中心ID
         DataCenterInfo dataCenterInfo = JsonUtils.readValue(msg, DataCenterInfo.class);
+        if (Objects.isNull(dataCenterInfo)) {
+            return false;
+        }
         log.info("DataCenterInfo :{}", dataCenterInfo);
         // 获取当前执行节点配置的数据中心信息
         DataCenterConfig dataCenterConfig = SpringUtils.getBean(DataCenterConfig.class);

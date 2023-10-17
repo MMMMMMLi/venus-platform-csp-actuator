@@ -5,6 +5,9 @@ spring:
         binder:
           brokers: 172.20.88.141:9092
           auto-add-partitions: true
+          producer-properties:
+            key.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+            value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
       bindings:
         # 消息生产者
         actuatorStatusReport-out-0:

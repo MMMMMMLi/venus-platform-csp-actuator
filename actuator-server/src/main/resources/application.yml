@@ -24,11 +24,11 @@ data:
     id: 422d94bc-f625-42df-a69d-9141afdce00f
     name: 测试数据中心
 
-# 定时上报为启动之后的5min为第一次，后续每10min上报一次
+# 定时上报为启动之后的5min为第一次，后续每5min上报一次
 node:
   report:
     initialDelay: 5
-    fixedDelay: 10
+    fixedDelay: 5
 
 # Topic消息数据时效性: 10min
 msg:

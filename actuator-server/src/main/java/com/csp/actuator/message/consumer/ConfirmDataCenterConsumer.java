@@ -7,6 +7,7 @@ import com.csp.actuator.constants.TopicBingingName;
 import com.csp.actuator.helper.CheckHelper;
 import com.csp.actuator.message.producer.MessageProducer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,13 @@ public class ConfirmDataCenterConsumer {
     @Bean
     public Consumer<String> confirmDataCenter() {
         return msg -> {
+            if (StringUtils.isBlank(msg)) {
+                return;
+            }
+            // 处理一下转义字符
+            msg = StringUtils.replace(msg, "\\", "");
+            msg = StringUtils.removeStart(msg, "\"");
+            msg = StringUtils.removeEnd(msg, "\"");
             log.info("ConfirmDataCenter msg: {}", msg);
             // 确认一下数据中心信息
             boolean checkDataCenterId = CheckHelper.checkDataCenterIdAndMsgTime(msg, MSG_EFFECTIVE_TIME);
