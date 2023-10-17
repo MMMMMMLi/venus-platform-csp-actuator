@@ -2,7 +2,6 @@ package com.csp.actuator.controller;
 
 import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.cache.DataCenterKeyCache;
-import com.csp.actuator.constants.BaseConstant;
 import com.csp.actuator.entity.ApiResult;
 import com.csp.actuator.entity.SoftSignVerifyDTO;
 import com.csp.actuator.exception.ActuatorException;
@@ -10,7 +9,10 @@ import com.csp.actuator.message.consumer.DestroyKeyConsumer;
 import com.csp.actuator.message.consumer.GenerateKeyConsumer;
 import com.csp.actuator.message.consumer.SyncKeyConsumer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -58,5 +60,10 @@ public class ApiController {
     @PostMapping("/syncKey")
     public String syncKey(@RequestBody String msg) {
         return JsonUtils.writeValueAsString(SyncKeyConsumer.syncKey(msg));
+    }
+
+    @PostMapping("/syncLMK")
+    public String syncLMK(@RequestBody String msg) {
+        return JsonUtils.writeValueAsString(SyncKeyConsumer.syncLMK(msg));
     }
 }

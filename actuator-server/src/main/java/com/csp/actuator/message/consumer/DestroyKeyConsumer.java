@@ -45,9 +45,9 @@ public class DestroyKeyConsumer {
         }
         // 销毁密钥信息
         if (removeFlag) {
-            callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
-        } else {
             callBackTopicInfo.setStatus(CallBackStatusEnum.SUCCESS.ordinal());
+        } else {
+            callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
         }
         callBackTopicInfo.setKeyId(destroyKeyTopicInfo.getRemoveKeyInfo().getKeyId());
         callBackTopicInfo.setMessage(message);

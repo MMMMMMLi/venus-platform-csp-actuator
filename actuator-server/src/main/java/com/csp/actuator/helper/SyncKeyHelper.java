@@ -1,8 +1,13 @@
 package com.csp.actuator.helper;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.csp.actuator.api.entity.*;
+import com.csp.actuator.api.constants.KeyInfoKeyConstant;
+import com.csp.actuator.api.entity.DeviceIpPortInfo;
+import com.csp.actuator.api.entity.DeviceSyncKeyResult;
+import com.csp.actuator.api.entity.RemoveKeyInfo;
+import com.csp.actuator.api.entity.SyncGenerateKeyInfo;
 import com.csp.actuator.api.kms.SyncKeyTopicInfo;
+import com.csp.actuator.api.kms.SyncLMKTopicInfo;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.GlobalUsedTypeCodeConstant;
 import com.csp.actuator.entity.ImportKeyInfo;
@@ -10,6 +15,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.csp.actuator.constants.BaseConstant.GLOBAL_LMK_KEYINDEX;
@@ -179,5 +185,23 @@ public class SyncKeyHelper {
         } else {
             log.info("device [{}] no has old {} key...", devicePostList, logType);
         }
+    }
+
+    public static Boolean syncLMK(SyncLMKTopicInfo lmkTopicInfo) {
+        // 校验设备编码
+        CheckHelper.checkDevModelCode(lmkTopicInfo.getDevModelCode());
+        // 校验设备信息
+        CheckHelper.checkDeviceInfo(lmkTopicInfo.getDeviceList());
+        // 校验密钥信息
+        CheckHelper.checkKeyInfo(lmkTopicInfo.getKeyInfo());
+        // 给个默认值
+        Map<String, Object> keyInfo = lmkTopicInfo.getKeyInfo();
+        keyInfo.put(KeyInfoKeyConstant.KEY_CV, "");
+        return ImportKeyHelper.importSymmetricKey(ImportKeyInfo.builder()
+                .keyId("")
+                .devModelCode(lmkTopicInfo.getDevModelCode())
+                .deviceList(lmkTopicInfo.getDeviceList())
+                .keyInfo(keyInfo)
+                .build());
     }
 }

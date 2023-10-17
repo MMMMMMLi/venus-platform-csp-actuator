@@ -4,6 +4,8 @@ import com.csp.actuator.api.entity.DeviceSyncKeyResult;
 import com.csp.actuator.api.enums.CallBackStatusEnum;
 import com.csp.actuator.api.kms.SyncKeyCallBackTopicInfo;
 import com.csp.actuator.api.kms.SyncKeyTopicInfo;
+import com.csp.actuator.api.kms.SyncLMKCallbackTopicInfo;
+import com.csp.actuator.api.kms.SyncLMKTopicInfo;
 import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.helper.SyncKeyHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +56,36 @@ public class SyncKeyConsumer {
         }
         callBackTopicInfo.setMessage(message);
         log.info("SyncKeyCallBackTopicInfo : {}", callBackTopicInfo);
+        return callBackTopicInfo;
+    }
+
+    public static SyncLMKCallbackTopicInfo syncLMK(String msg) {
+        log.info("SyncLMK msg: {}", msg);
+        String message = DEFAULT_SUCCESS_MESSAGE;
+        // 返回实体
+        SyncLMKCallbackTopicInfo callBackTopicInfo = new SyncLMKCallbackTopicInfo();
+        callBackTopicInfo.setDate(System.currentTimeMillis());
+        // 格式化密钥
+        SyncLMKTopicInfo syncKeyTopicInfo = JsonUtils.readValue(msg, SyncLMKTopicInfo.class);
+        log.info("SyncLMKTopicInfo :{}", syncKeyTopicInfo);
+        if (Objects.isNull(syncKeyTopicInfo)) {
+            return callBackTopicInfo.setMessage(ERROR_DATA_FORMAT_FAILED)
+                    .setStatus(CallBackStatusEnum.FAILED.ordinal());
+        }
+        // 执行创建操作
+        Boolean lmkTopicInfo = Boolean.FALSE;
+        try {
+            lmkTopicInfo = SyncKeyHelper.syncLMK(syncKeyTopicInfo);
+        } catch (Exception e) {
+            log.error("SyncLMK failed, e: {}", message = e.getMessage());
+        }
+        if (lmkTopicInfo) {
+            callBackTopicInfo.setStatus(CallBackStatusEnum.SUCCESS.ordinal());
+        } else {
+            callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
+        }
+        callBackTopicInfo.setMessage(message);
+        log.info("SyncLMKCallbackTopicInfo : {}", callBackTopicInfo);
         return callBackTopicInfo;
     }
 }
