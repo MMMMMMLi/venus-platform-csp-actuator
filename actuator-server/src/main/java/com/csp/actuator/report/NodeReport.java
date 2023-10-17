@@ -41,7 +41,7 @@ public class NodeReport {
     public static final String DEFAULT_CENTER_INFO_VALUE = "default";
 
     /**
-     * 定时上报为启动之后的10min为第一次，后续每30min上报一次
+     * 定时上报为启动之后的5min为第一次，后续每10min上报一次
      */
     @Scheduled(initialDelayString = "${node.report.initialDelay}", fixedDelayString = "${node.report.fixedDelay}", timeUnit = TimeUnit.MINUTES)
     public void update() {
