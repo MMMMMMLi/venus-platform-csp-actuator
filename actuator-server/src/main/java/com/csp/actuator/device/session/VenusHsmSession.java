@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.security.SecureRandom;
 import java.util.*;
 
-import static com.csp.actuator.device.contants.HSMConstant.DEVICE_PASSWORD;
+import static com.csp.actuator.device.contants.HSMConstant.VENUS_DEVICE_PASSWORD;
 import static com.csp.actuator.device.contants.HSMConstant.VENUS_DLL_NAME_LIST;
 import static com.csp.actuator.device.contants.HsmFunctionConstant.*;
 
@@ -45,7 +45,7 @@ public class VenusHsmSession extends AbstractHsmSession {
         sdfV2Api = new SDFV2Api();
         int result = 1;
         if (hsm.getDeviceHandle() == null) {
-            sdfV2Api.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), VENUS_DLL_NAME_LIST, DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
+            sdfV2Api.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), VENUS_DLL_NAME_LIST, VENUS_DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
             // 初始化会话池
             result = sdfV2Api.SDF_OpenDevice(phDeviceHandle);
             if (result != 0) {
@@ -55,7 +55,7 @@ public class VenusHsmSession extends AbstractHsmSession {
             deviceHandle = phDeviceHandle.getValue();
             hsm.setDeviceHandle(deviceHandle);
         } else {
-            sdfV2Api.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), VENUS_DLL_NAME_LIST, DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
+            sdfV2Api.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), VENUS_DLL_NAME_LIST, VENUS_DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
             this.deviceHandle = hsm.getDeviceHandle();
         }
         // 创建会话
@@ -830,7 +830,7 @@ public class VenusHsmSession extends AbstractHsmSession {
     }
 
     private Object listKey(Map<String, Object> param) {
-        log.info("deleteKey param= {}", param);
+        log.info("listKey param= {}", param);
         List<Integer> result = new ArrayList<>();
         Integer keyIndex = (Integer) param.get(PARAM_KEY_INDEX);
         Integer keyType = (Integer) param.get(PARAM_KEY_TYPE);

@@ -40,7 +40,8 @@ public class DestroyKeyConsumer {
         Boolean removeFlag = Boolean.FALSE;
         try {
             removeFlag = DestroyKeyHelper.destroyKey(destroyKeyTopicInfo);
-        } catch (Exception e) {
+        } catch (Exception |Error e) {
+            e.printStackTrace();
             log.error("DestroyKey failed, e: {}", message = e.getMessage());
         }
         // 销毁密钥信息

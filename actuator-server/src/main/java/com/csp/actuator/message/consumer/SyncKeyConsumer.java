@@ -76,7 +76,8 @@ public class SyncKeyConsumer {
         Boolean lmkTopicInfo = Boolean.FALSE;
         try {
             lmkTopicInfo = SyncKeyHelper.syncLMK(syncKeyTopicInfo);
-        } catch (Exception e) {
+        } catch (Exception | Error e) {
+            e.printStackTrace();
             log.error("SyncLMK failed, e: {}", message = e.getMessage());
         }
         if (lmkTopicInfo) {

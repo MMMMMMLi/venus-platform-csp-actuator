@@ -44,5 +44,10 @@ public class HSMConstant {
     /**
      * 密码机密码
      */
-    public static final String DEVICE_PASSWORD = "801862E847C61584451AFDD1D9C1AAA1";
+    public static final String SANSEC_DEVICE_PASSWORD = "801862E847C61584451AFDD1D9C1AAA1";
+
+    /**
+     * 启明密码机密码
+     */
+    public static final String VENUS_DEVICE_PASSWORD = "";
 }

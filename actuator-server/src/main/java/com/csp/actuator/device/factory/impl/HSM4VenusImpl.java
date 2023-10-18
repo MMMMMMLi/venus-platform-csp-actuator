@@ -1,9 +1,9 @@
 package com.csp.actuator.device.factory.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.api.entity.RemoveKeyInfo;
+import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.device.DeviceInstanceHelper;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.VendorConstant;
@@ -13,23 +13,19 @@ import com.csp.actuator.device.enums.GlobalKeyTypeEnum;
 import com.csp.actuator.device.enums.GlobalUsedTypeCodeEnum;
 import com.csp.actuator.device.exception.DeviceException;
 import com.csp.actuator.device.factory.HSMFactory;
-import com.csp.actuator.device.session.GMT0018SDFSession;
 import com.csp.actuator.device.session.VenusHsmSession;
-import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.utils.SM4Util;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.csp.actuator.device.contants.GlobalTypeCodeConstant.ERROR_KEY;
 import static com.csp.actuator.device.contants.HsmFunctionConstant.*;
-
 
 
 /**
@@ -144,7 +140,7 @@ public class HSM4VenusImpl implements HSMFactory {
      */
     @Override
     public GenerateKeyResult generateSymmetricKey(int globalAlgTypeCode, List<String> devicePostList) {
-        GMT0018SDFSession session = DeviceInstanceHelper.getOneSansecHSMInstance(devicePostList);
+        VenusHsmSession session = DeviceInstanceHelper.getOneVenusHSMInstance(devicePostList);
         try {
             // 生成一个密钥
             Map<String, Object> param = new HashMap<>();
@@ -704,9 +700,8 @@ public class HSM4VenusImpl implements HSMFactory {
      * @param venusHsmSessions VenusHsmSession列表
      */
     private void closeVenusHsm(List<VenusHsmSession> venusHsmSessions) {
-        ThreadPoolTaskExecutor executor = SpringUtil.getBean("threadPoolTaskExecutor");
-        executor.execute(() -> {
+        new Thread(() -> {
             venusHsmSessions.forEach(VenusHsmSession::destroyHsm);
-        });
+        }).start();
     }
 }

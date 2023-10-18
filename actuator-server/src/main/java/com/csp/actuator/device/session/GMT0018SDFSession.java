@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.csp.actuator.device.contants.HSMConstant.DEVICE_PASSWORD;
+import static com.csp.actuator.device.contants.HSMConstant.SANSEC_DEVICE_PASSWORD;
 import static com.csp.actuator.device.contants.HSMConstant.SANSEC_DLL_NAME;
 
 @Slf4j
@@ -37,7 +37,7 @@ public class GMT0018SDFSession extends AbstractHsmSession {
         sdfApi = new SDFApi();
         int result;
         if (hsm.getDeviceHandle() == null) {
-            sdfApi.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), SANSEC_DLL_NAME, DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
+            sdfApi.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), SANSEC_DLL_NAME, SANSEC_DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
             // 初始化会话池
             result = sdfApi.SDF_OpenDevice(phDeviceHandle);
             if (result != 0) {
@@ -47,7 +47,7 @@ public class GMT0018SDFSession extends AbstractHsmSession {
             deviceHandle = phDeviceHandle.getValue();
             hsm.setDeviceHandle(deviceHandle);
         } else {
-            sdfApi.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), SANSEC_DLL_NAME, DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
+            sdfApi.overrideIniConfigFile(hsm.getIp(), hsm.getPort().toString(), SANSEC_DLL_NAME, SANSEC_DEVICE_PASSWORD, hsm.getIsEnableSslFlag());
             this.deviceHandle = hsm.getDeviceHandle();
         }
         // 创建会话

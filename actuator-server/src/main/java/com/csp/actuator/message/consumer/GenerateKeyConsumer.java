@@ -42,7 +42,8 @@ public class GenerateKeyConsumer {
         GenerateKeyResult generateKeyResult = null;
         try {
             generateKeyResult = GenerateKeyHelper.generateKey(generateKeyTopicInfo);
-        } catch (Exception e) {
+        } catch (Exception | Error e) {
+            e.printStackTrace();
             log.error("GenerateKey failed, e: {}", message = e.getMessage());
         }
         if (Objects.isNull(generateKeyResult)) {
