@@ -46,8 +46,12 @@ public class ConfirmDataCenterConsumer {
             }
             // 处理一下转义字符
             msg = StringUtils.replace(msg, "\\", "");
-            msg = StringUtils.removeStart(msg, "\"");
-            msg = StringUtils.removeEnd(msg, "\"");
+            if (msg.indexOf("\"") == 0) {
+                msg = StringUtils.removeStart(msg, "\"");
+            }
+            if (msg.lastIndexOf("\"") == msg.length() - 1) {
+                msg = StringUtils.removeEnd(msg, "\"");
+            }
             log.info("ConfirmDataCenter msg: {}", msg);
             // 确认一下数据中心信息
             boolean checkDataCenterId = CheckHelper.checkDataCenterIdAndMsgTime(msg, MSG_EFFECTIVE_TIME);
