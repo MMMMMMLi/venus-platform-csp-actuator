@@ -8,6 +8,17 @@ spring:
   profiles:
     active: kafka
 
+log:
+  # 日志输出格式
+  pattern: "%red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger{36}) %yellow(-[%file:%line]-) %msg%n"
+  # 日志输出级别
+  root:
+    level: info
+  # 日志最大历史天数
+  max-history: 60
+  # 日志总文件大小
+  total-size-cap: 10GB
+
 logging:
   level:
     org.apache.kafka: warn
