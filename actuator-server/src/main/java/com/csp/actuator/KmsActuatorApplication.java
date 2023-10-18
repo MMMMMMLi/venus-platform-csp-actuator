@@ -1,8 +1,5 @@
 package com.csp.actuator;
 
-import cn.hutool.http.Header;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpUtil;
 import com.csp.actuator.api.enums.ActuatorStatusEnum;
 import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.report.NodeReport;
@@ -39,28 +36,28 @@ public class KmsActuatorApplication {
         } else {
             log.info("Custom property 'data.center.name' settings completed.");
         }
-//        // 校验kms地址
-//        String kmsAddress = environment.getProperty("kms.address");
-//        if (NodeReport.dataCenterInfoIsError(kmsAddress)) {
-//            log.error("Custom property 'kms.address' not setting. Stopping application.");
-//            System.exit(1);
-//        } else {
-//            log.info("Custom property 'kms.address' settings completed.");
-//        }
-//        String kmsSecret = environment.getProperty("kms.secret");
-//        if (NodeReport.dataCenterInfoIsError(kmsSecret)) {
-//            log.error("Custom property 'kms.secret' not setting. Stopping application.");
-//            System.exit(1);
-//        } else {
-//            log.info("Custom property 'kms.secret' settings completed.");
-//        }
-//        // 获取密钥
-//        if (!DataCenterKeyCache.initDataCenterKey(kmsAddress, kmsSecret)) {
-//            log.error("InitDataCenterKey failed. Stopping application.");
-//            System.exit(1);
-//        } else {
-//            log.info("DataCenterKey settings completed.");
-//        }
+        // 校验kms地址
+        String kmsAddress = environment.getProperty("kms.address");
+        if (NodeReport.dataCenterInfoIsError(kmsAddress)) {
+            log.error("Custom property 'kms.address' not setting. Stopping application.");
+            System.exit(1);
+        } else {
+            log.info("Custom property 'kms.address' settings completed.");
+        }
+        String kmsSecret = environment.getProperty("kms.secret");
+        if (NodeReport.dataCenterInfoIsError(kmsSecret)) {
+            log.error("Custom property 'kms.secret' not setting. Stopping application.");
+            System.exit(1);
+        } else {
+            log.info("Custom property 'kms.secret' settings completed.");
+        }
+        // 获取密钥
+        if (!DataCenterKeyCache.initDataCenterKey(kmsAddress, kmsSecret)) {
+            log.error("InitDataCenterKey failed. Stopping application.");
+            System.exit(1);
+        } else {
+            log.info("DataCenterKey settings completed.");
+        }
         String ip = InetAddress.getLocalHost().getHostAddress();
         String port = environment.getProperty("server.port");
         log.info("\n-------------------------------------------------------------------------\n\t" +

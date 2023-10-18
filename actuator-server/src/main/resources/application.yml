@@ -14,15 +14,14 @@ logging:
 
 # kms地址
 kms:
-  address: default1
-#  address: "http://172.20.88.229:8007"
+  address: default
   secret: 0D9Qe30GIMm6oYTcDTuRQgRy7G7R6AMm
 
 # 数据中心地址
 data:
   center:
-    id: 422d94bc-f625-42df-a69d-9141afdce00f
-    name: 测试数据中心
+    id: default
+    name: default
 
 # 定时上报为启动之后的5min为第一次，后续每5min上报一次
 node:
