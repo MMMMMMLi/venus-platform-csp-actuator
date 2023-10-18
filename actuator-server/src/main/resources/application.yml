@@ -17,8 +17,10 @@ kms:
   address: default
   secret: 0D9Qe30GIMm6oYTcDTuRQgRy7G7R6AMm
 
-# 数据中心地址
+# 数据中心地址以及kafka地址
 data:
+  kafka:
+    address: 172.20.88.141:9092
   center:
     id: default
     name: default

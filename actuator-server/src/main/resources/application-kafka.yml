@@ -3,7 +3,7 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: 172.20.88.141:9092
+          brokers: ${data.kafka.address}
           auto-add-partitions: true
           producer-properties:
             key.serializer: org.springframework.kafka.support.serializer.JsonSerializer
