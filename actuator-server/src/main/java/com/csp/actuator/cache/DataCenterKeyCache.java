@@ -56,6 +56,7 @@ public class DataCenterKeyCache {
                     .body(JSONObject.toJSONString(softSignVerifyDTO))
                     .timeout(20000)
                     .execute().body();
+            log.info("Get key result :{}", result);
             // 校验
             if (StringUtils.isBlank(result)) {
                 return false;
