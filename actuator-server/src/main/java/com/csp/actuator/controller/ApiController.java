@@ -8,6 +8,7 @@ import com.csp.actuator.exception.ActuatorException;
 import com.csp.actuator.message.consumer.DestroyKeyConsumer;
 import com.csp.actuator.message.consumer.GenerateKeyConsumer;
 import com.csp.actuator.message.consumer.SyncKeyConsumer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ import static com.csp.actuator.constants.ErrorMessage.ERROR_DATA_CENTER_ID_NOT_F
  * @description 接口Controller
  * @date Created in 2023-10-13 18:06
  */
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class ApiController {
@@ -36,9 +38,10 @@ public class ApiController {
 
     @PostMapping("/getDataCenterKeyInfo")
     public ApiResult<String> getDataCenterKeyInfo(HttpServletRequest request, @Valid @RequestBody SoftSignVerifyDTO param) {
+        log.info("GetDataCenterKeyInfo param: {}", param);
         String value = request.getHeader("secret");
         if (!kekSecret.equals(value)) {
-            throw new ActuatorException(ERROR_DATA_CENTER_ID_NOT_FOUND);
+            return ApiResult.fail("500", ERROR_DATA_CENTER_ID_NOT_FOUND);
         }
         try {
             return ApiResult.success(DataCenterKeyCache.getDataCenterKey4PublicKeyEncrypt(param.getPublicKeyHex()));
