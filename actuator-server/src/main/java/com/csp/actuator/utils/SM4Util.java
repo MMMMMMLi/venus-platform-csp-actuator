@@ -56,13 +56,7 @@ public class SM4Util {
      * sm4加密
      */
     public static byte[] encrypt(byte[] key, byte[] data) {
-        try {
-            Cipher cipher = generateEcbCipher(Cipher.ENCRYPT_MODE, key);
-            return cipher.doFinal(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return encrypt(key, Base64.toBase64String(data));
     }
 
     /**
@@ -112,7 +106,7 @@ public class SM4Util {
     public static byte[] decrypt(byte[] key, String data) {
         try {
             Cipher cipher = generateEcbCipher(Cipher.DECRYPT_MODE, key);
-            return cipher.doFinal(Base64.decode(data));
+            return Base64.decode(cipher.doFinal(Base64.decode(data)));
         } catch (Exception e) {
             e.printStackTrace();
         }
