@@ -193,7 +193,7 @@ public class GenerateKeyHelper {
             return null;
         }
         GenerateKeyResult generateKeyResult = hsmImpl.generateSM2Key4ProKeyValue(
-                (Integer) generateKeyTopicInfo.getKeyInfo().get(KEY_ALG_TYPE),
+                (Integer) generateKeyTopicInfo.getKeyInfo().get(KEK_KEY_ALG_TYPE),
                 (String) generateKeyTopicInfo.getKeyInfo().get(KEK_VALUE),
                 generateKeyTopicInfo.getDeviceList());
         return Objects.isNull(generateKeyResult) ? null : generateKeyResult.setKeyIndex(0);
