@@ -107,6 +107,7 @@ public class SyncKeyHelper {
                         ImportKeyHelper.importKey(ImportKeyInfo.builder()
                                 .keyId(kekInfo.getKeyId()).operation(kekInfo.getOperation())
                                 .deviceList(devicePostList).devModelCode(devModelCode)
+                                .keyInfo(kekInfo.getKeyInfo())
                                 .build());
                     });
                 }
@@ -116,6 +117,7 @@ public class SyncKeyHelper {
                         ImportKeyHelper.importKey(ImportKeyInfo.builder()
                                 .keyId(keyInfo.getKeyId()).operation(keyInfo.getOperation())
                                 .deviceList(devicePostList).devModelCode(devModelCode)
+                                .keyInfo(keyInfo.getKeyInfo())
                                 .build());
                     });
                 }
