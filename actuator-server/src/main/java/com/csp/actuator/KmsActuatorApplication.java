@@ -3,6 +3,7 @@ package com.csp.actuator;
 import com.csp.actuator.api.enums.ActuatorStatusEnum;
 import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.report.NodeReport;
+import com.csp.actuator.utils.NetUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -58,7 +59,7 @@ public class KmsActuatorApplication {
         } else {
             log.info("DataCenterKey settings completed.");
         }
-        String ip = InetAddress.getLocalHost().getHostAddress();
+        String ip = NetUtil.getLocalHostAddr();
         String port = environment.getProperty("server.port");
         log.info("\n-------------------------------------------------------------------------\n\t" +
                 "Actuator Server Successfully started ...\n\t" +
@@ -69,7 +70,7 @@ public class KmsActuatorApplication {
         // 启动成功之后，开始上报节点信息
         log.info("执行节点启动成功，开始上报节点信息...");
         NodeReport.producerMessage(
-                NodeReport.getActuatorNodeStatusTopicInfo(dataCenterId, dataCenterName, port, ActuatorStatusEnum.UPDATE));
+                NodeReport.getActuatorNodeStatusTopicInfo(dataCenterId, dataCenterName,port, ActuatorStatusEnum.UPDATE));
     }
 
 }

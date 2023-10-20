@@ -5,6 +5,7 @@ import com.csp.actuator.api.enums.ActuatorStatusEnum;
 import com.csp.actuator.config.DataCenterConfig;
 import com.csp.actuator.constants.TopicBingingName;
 import com.csp.actuator.message.producer.MessageProducer;
+import com.csp.actuator.utils.NetUtil;
 import com.csp.actuator.utils.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -72,12 +73,7 @@ public class NodeReport {
     }
 
     public static ActuatorNodeStatusTopicInfo getActuatorNodeStatusTopicInfo(String dataCenterId, String dataCenterName, String serverPort, ActuatorStatusEnum actuatorStatusEnum) {
-        String ip = "127.0.0.1";
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            log.error("获取当前设备IP失败...");
-        }
+        String ip = NetUtil.getLocalHostAddr();
         ActuatorNodeStatusTopicInfo actuatorNodeStatusTopicInfo =
                 ActuatorNodeStatusTopicInfo.builder()
                         .dataCenterName(dataCenterName)
