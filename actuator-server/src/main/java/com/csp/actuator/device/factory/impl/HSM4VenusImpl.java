@@ -193,6 +193,7 @@ public class HSM4VenusImpl implements HSMFactory {
             if (ArrayUtils.isEmpty(data)) {
                 throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
             }
+            log.info("HSM4VenusImpl SDF_GenerateKeyWithKEK success, key length = {}", data.length);
             log.info("SDF_GenerateKeyWithKEK success, next execute SWMF_InputKEK...");
 
             // 再将解密完的明文，导入并保存到密码机里去

@@ -255,9 +255,9 @@ public class GenerateKeyHelper {
         String keyLable = getKeyIv(16);
         GenerateKeyResult generateKeyResult = hsmImpl.generateAndSaveSymmetricKey4ProKeyIndex(
                 (Integer) keyInfo.get(KEY_ALG_TYPE),
-                keyIndex,
+                (Integer) keyInfo.get(KEK_INDEX),
                 (Integer) keyInfo.get(KEK_KEY_ALG_TYPE),
-                (Integer) keyInfo.get(KEY_INDEX),
+                keyIndex,
                 keyLable, destKeyIv, EXPORT_KEY_ALG_TYPE_CBC, deviceList);
         return Objects.isNull(generateKeyResult) ? null : generateKeyResult.setIv(destKeyIv).setKeyLabel(keyLable).setKeyIndex(keyIndex);
     }
