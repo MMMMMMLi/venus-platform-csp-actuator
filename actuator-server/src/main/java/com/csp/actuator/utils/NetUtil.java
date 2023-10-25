@@ -51,7 +51,6 @@ public class NetUtil {
         } catch (SocketException e) {
             log.error("SocketException：", e);
         }
-        log.info("最终结果ipLocalAddr = {}", ipLocalAddr);
         return ipLocalAddr;
     }
 }
