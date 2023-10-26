@@ -248,7 +248,7 @@ public class GenerateKeyHelper {
             if (Objects.isNull(maxKeyNums) || maxKeyNums == 0) {
                 throw new ActuatorException(ErrorMessage.ERROR_GET_KEY_INDEX_FAILED);
             }
-            keyIndex = DeviceHelper.getOneAvailableKeyIndexList(devModelCode, GlobalTypeCodeConstant.ECC_KEY, 0, deviceList, maxKeyNums);
+            keyIndex = DeviceHelper.getOneAvailableKeyIndexList(devModelCode, GlobalTypeCodeConstant.SYMMETRIC_KEY, 0, deviceList, maxKeyNums);
         }
         // 获取一个keyIv
         String destKeyIv = getKeyIv(16);
