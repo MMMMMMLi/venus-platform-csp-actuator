@@ -112,7 +112,7 @@ public class SDFApi {
      * @param passwd          密码
      * @param isEnableSslFlag 是否开启SSL模式 0.否 1.是
      */
-    public void overrideIniConfigFile(String ip, String port, String dllName, String passwd, Integer isEnableSslFlag) {
+    public synchronized void overrideIniConfigFile(String ip, String port, String dllName, String passwd, Integer isEnableSslFlag) {
         FileInputStream input = null;
         InputStreamReader isr = null;
         BufferedReader reader = null;

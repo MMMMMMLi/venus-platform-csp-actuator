@@ -2,6 +2,8 @@ package com.csp.actuator.helper;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.csp.actuator.device.FactoryBuilder;
+import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
+import com.csp.actuator.device.contants.HSMConstant;
 import com.csp.actuator.device.contants.VendorConstant;
 import com.csp.actuator.device.factory.HSMFactory;
 import com.csp.actuator.exception.ActuatorException;
@@ -46,10 +48,15 @@ public class DeviceHelper {
         List<Integer> indexList = getDeviceKeyIndexByKeyTypeAndKeyUsage(devModelCode, globalKeyType, globalUseType, devicePostList, maxIndex);
         // 前10个和lmk的索引位置空出来，不允许使用----因为预留给平台密码机了
         // 这里有可能会浪费一个索引位置，因为有些密码机不需要LMK，等后面再说吧，浪费就浪费了
-        for (int i = 0; i < GLOBAL_LMK_KEYINDEX; i++) {
-            indexList.add(i + 1);
+        if (GlobalTypeCodeConstant.SYMMETRIC_KEY.equals(globalKeyType)) {
+            for (int i = 0; i < GLOBAL_LMK_KEYINDEX; i++) {
+                if (!indexList.contains(i + 1)) {
+                    indexList.add(i + 1);
+                }
+            }
         }
-        if (maxIndex == indexList.size()) {
+
+        if (maxIndex <= indexList.size()) {
             throw new ActuatorException(ERROR_KEY_NO_KEY_INDEX);
         }
         // 返回的密钥索引，通过随机生成，然后判断是否为密码机里已被占用的，从而找到仍未被使用的密钥索引
