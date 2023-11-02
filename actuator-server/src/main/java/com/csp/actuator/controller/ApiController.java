@@ -4,9 +4,9 @@ import com.csp.actuator.api.utils.JsonUtils;
 import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.entity.ApiResult;
 import com.csp.actuator.entity.SoftSignVerifyDTO;
-import com.csp.actuator.exception.ActuatorException;
 import com.csp.actuator.message.consumer.DestroyKeyConsumer;
 import com.csp.actuator.message.consumer.GenerateKeyConsumer;
+import com.csp.actuator.message.consumer.ImportKeyConsumer;
 import com.csp.actuator.message.consumer.SyncKeyConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,5 +68,15 @@ public class ApiController {
     @PostMapping("/syncLMK")
     public String syncLMK(@RequestBody String msg) {
         return JsonUtils.writeValueAsString(SyncKeyConsumer.syncLMK(msg));
+    }
+
+    @PostMapping("/importSm2Dek")
+    public String importSm2Dek(@RequestBody String msg) {
+        return JsonUtils.writeValueAsString(ImportKeyConsumer.importSm2Dek(msg));
+    }
+
+    @PostMapping("/importSymmetricDek")
+    public String importSymmetricDek(@RequestBody String msg) {
+        return JsonUtils.writeValueAsString(ImportKeyConsumer.importSymmetricDek(msg));
     }
 }

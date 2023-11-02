@@ -14,4 +14,6 @@ public class ActuatorAPIConstant {
     public static final String SYNC_KEY = "/csp/actuator/api/syncKey";
     public static final String INIT_LMK = "/csp/actuator/api/initLMK";
     public static final String SYNC_LMK = "/csp/actuator/api/syncLMK";
+    public static final String IMPORT_SM2_DEK = "/csp/actuator/api/importSm2Dek";
+    public static final String IMPORT_SYMMETRIC_DEK = "/csp/actuator/api/importSymmetricDek";
 }
