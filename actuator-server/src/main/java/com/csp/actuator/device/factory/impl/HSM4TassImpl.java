@@ -1,11 +1,13 @@
 package com.csp.actuator.device.factory.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.tass.exceptions.TAException;
 import cn.tass.hsm.GHSMAPI;
 
 import com.csp.actuator.api.entity.RemoveKeyInfo;
 import com.csp.actuator.device.DeviceInstanceHelper;
 import com.csp.actuator.api.entity.GenerateKeyResult;
+import com.csp.actuator.device.bean.ImportKeyParamEntity;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.VendorConstant;
 import com.csp.actuator.device.enums.GlobalAlgTypeEnum;
@@ -407,6 +409,66 @@ public class HSM4TassImpl implements HSMFactory {
             log.error(e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public Boolean batchImportSymmetricKey(List<ImportKeyParamEntity> importKeyParamEntity, List<String> devicePostList) {
+        //  获取设备链接实例
+        GHSMAPI tassHSMInstance = DeviceInstanceHelper.getTassHSMInstance(devicePostList);
+        if (Objects.isNull(tassHSMInstance)) {
+            return null;
+        }
+        try {
+            importKeyParamEntity.forEach(info -> {
+                // 获取一下对应的密钥算法类型
+                String vendorAlgTypeName = GlobalAlgTypeEnum.getVendorAlgTypeName(info.getKeyAlgTypeCode(), VendorConstant.TASS);
+                // 处理一下私钥和CV值
+                byte[] cipherByLMKInfo = Base64.getDecoder().decode(info.getCipher());
+                byte[] keyCVInfo = Base64.getDecoder().decode(info.getKeyCV());
+                // 备份密钥。
+                try {
+                    tassHSMInstance.importSymmKey(info.getKeyIndex(), vendorAlgTypeName, cipherByLMKInfo, keyCVInfo);
+                } catch (TAException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public void batchImportSM2Key(List<ImportKeyParamEntity> importKeyParamEntity, List<String> devicePostList) {
+        //  获取设备链接实例
+        GHSMAPI tassHSMInstance = DeviceInstanceHelper.getTassHSMInstance(devicePostList);
+        if (Objects.isNull(tassHSMInstance)) {
+            return;
+        }
+        try {
+            importKeyParamEntity.forEach(info -> {
+                // 获取一下对应的密钥使用用途类型
+                Integer vendorKeyUsedType = GlobalUsedTypeCodeEnum.getVendorUsedTypeCode(info.getKeyUsedType(), VendorConstant.TASS);
+                // 获取一下对应的密钥算法类型
+                Integer vendorKeyTypeCode = GlobalKeyTypeEnum.getVendorTypeCode(info.getKeyAlgTypeCode(), VendorConstant.TASS);
+                String[] split = StringUtils.split(info.getCipher(), "&");
+                if (split.length != 2) {
+                    return;
+                }
+                // 处理一下私钥和CV值
+                byte[] cipherByLMKInfo = Base64.getDecoder().decode(split[1]);
+                byte[] keyLableInfo = info.getKeyLable().getBytes();
+                // 导入密钥
+                try {
+                    tassHSMInstance.importASymmKeySyncAll(vendorKeyTypeCode, 0x0007, cipherByLMKInfo, info.getKeyIndex(), vendorKeyUsedType, keyLableInfo, NULL_BYTE);
+                } catch (TAException e) {
+                    log.error(e.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     @Override

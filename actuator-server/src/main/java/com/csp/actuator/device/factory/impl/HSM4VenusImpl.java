@@ -5,6 +5,7 @@ import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.api.entity.RemoveKeyInfo;
 import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.device.DeviceInstanceHelper;
+import com.csp.actuator.device.bean.ImportKeyParamEntity;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.VendorConstant;
 import com.csp.actuator.device.enums.GlobalAlgLengthEnum;
@@ -680,6 +681,94 @@ public class HSM4VenusImpl implements HSMFactory {
         } catch (Exception e) {
             log.error("HSM4VenusImpl generateAndSaveSymmetricKey4ProKeyIndex failed, error: ", e);
             throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
+        } finally {
+            closeVenusHsm(sessionList);
+        }
+    }
+
+    @Override
+    public Boolean batchImportSymmetricKey(List<ImportKeyParamEntity> importKeyParamEntityList, List<String> devicePostList) {
+        if (CollectionUtil.isEmpty(importKeyParamEntityList)) {
+            return Boolean.FALSE;
+        }
+        List<VenusHsmSession> sessionList = DeviceInstanceHelper.getVenusHSSMInstance(devicePostList);
+        if (CollectionUtil.isEmpty(sessionList)) {
+            return Boolean.FALSE;
+        }
+        try {
+            importKeyParamEntityList.forEach(info -> {
+                byte[] decryptData;
+                Map<String, Object> param = Maps.newHashMap();
+                // 入参
+                String cipherByLMK = info.getCipher();
+                Integer kekIndex = info.getKekIndex();
+                // 生成的密钥是密文的，导入需要的是明文，所以此处需要先使用`业务密码机`解密
+                if (Objects.isNull(kekIndex) || kekIndex == 0) {
+                    // 导入的是KEK密钥，KEK密钥由软算法加密，需要解密。
+                    decryptData = SM4Util.decrypt(DataCenterKeyCache.getDataCenterKey(), cipherByLMK);
+                    log.info("SDF_DeDEK success, next execute SWMF_InputKEK...");
+                } else {
+                    param.put("operation", "SDF_DeDEK");
+                    param.put("kekIndex", kekIndex);
+                    param.put("key", Base64.getDecoder().decode(cipherByLMK));
+                    decryptData = (byte[]) sessionList.get(0).execute(param);
+                }
+
+                // 导入sm4对称密钥到`业务密码机`
+                Integer strength = GlobalAlgLengthEnum.getAlgLength(info.getKeyAlgTypeCode());
+                Map<String, Object> inputParam = Maps.newHashMap();
+                inputParam.put("operation", "SDIF_ImportKeyAndSave");
+                inputParam.put("keyIndex", info.getKeyIndex());
+                inputParam.put("key", decryptData);
+                inputParam.put("strength", strength);
+                inputParam.put("algType", GlobalAlgTypeEnum.getVendorAlgTypeCode(info.getKeyAlgTypeCode(), VendorConstant.VENUS_SELF));
+
+                sessionList.forEach(session -> session.execute(inputParam));
+            });
+            return true;
+        } catch (Exception e) {
+            log.error("HSM4VenusImpl importSymmetricKey failed, error:", e);
+            throw new DeviceException("导入密钥失败，请检查服务器连接是否正常！！");
+        } finally {
+            closeVenusHsm(sessionList);
+        }
+    }
+
+    @Override
+    public void batchImportSM2Key(List<ImportKeyParamEntity> importKeyParamEntityList, List<String> devicePostList) {
+        List<VenusHsmSession> sessionList = DeviceInstanceHelper.getVenusHSSMInstance(devicePostList);
+        if (CollectionUtil.isEmpty(sessionList)) {
+            return;
+        }
+        try {
+            importKeyParamEntityList.forEach(importKeyParamEntity -> {
+                // 处理密钥，将密钥分开成公钥私钥
+                String[] keyInfo = StringUtils.split(importKeyParamEntity.getCipher(), "&");
+                byte[] priKey = Base64.getDecoder().decode(keyInfo[1]);
+                byte[] pubKey = Base64.getDecoder().decode(keyInfo[0]);
+                // 使用平台密码机给私钥解密一下子
+                Map<String, Object> param = new HashMap<>();
+                param.put("operation", "SDF_InternalDecrypt_SM4");
+                param.put("data", priKey);
+                param.put("kekIndex", importKeyParamEntity.getKekIndex());
+                byte[] decryPriKey = (byte[]) sessionList.get(0).execute(param);
+                // 补一下0
+                byte[] newPubKey = new byte[128];
+                System.arraycopy(pubKey, 0, newPubKey, 32, 32);
+                System.arraycopy(pubKey, 32, newPubKey, 96, 32);
+
+                // 导入sm2密钥到业务密码机
+                Map<String, Object> inputParam = new HashMap<>();
+                inputParam.put("operation", "SDIF_ImportKeyPair_ECC");
+                inputParam.put("privateKey", decryPriKey);
+                inputParam.put("publicKey", newPubKey);
+                inputParam.put("keyIndex", importKeyParamEntity.getKeyIndex());
+                inputParam.put("keyUsedType", GlobalUsedTypeCodeEnum.getVendorUsedTypeCode(importKeyParamEntity.getKeyUsedType(), VendorConstant.VENUS_SELF));
+                sessionList.forEach(session -> session.execute(inputParam));
+            });
+        } catch (Exception e) {
+            log.error("HSM4VenusImpl importSM2Key failed, error: ", e);
+            throw new DeviceException("导入密钥失败，请检查服务器连接是否正常！");
         } finally {
             closeVenusHsm(sessionList);
         }

@@ -2,91 +2,94 @@ package com.csp.actuator.message.consumer;
 
 import com.csp.actuator.api.entity.DeviceSyncKeyResult;
 import com.csp.actuator.api.enums.CallBackStatusEnum;
-import com.csp.actuator.api.kms.SyncKeyCallBackTopicInfo;
-import com.csp.actuator.api.kms.SyncKeyTopicInfo;
+import com.csp.actuator.api.kms.ImportKeyCallbackTopicInfo;
+import com.csp.actuator.api.kms.ImportKeyTopicInfo;
 import com.csp.actuator.api.kms.SyncLMKCallbackTopicInfo;
 import com.csp.actuator.api.kms.SyncLMKTopicInfo;
 import com.csp.actuator.api.utils.JsonUtils;
+import com.csp.actuator.helper.ImportKeyHelper;
 import com.csp.actuator.helper.SyncKeyHelper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.csp.actuator.constants.ErrorMessage.DEFAULT_SUCCESS_MESSAGE;
 import static com.csp.actuator.constants.ErrorMessage.ERROR_DATA_FORMAT_FAILED;
 
 /**
- * 密钥同步Consumer
+ * 密钥导入Consumer
  *
  * @author Weijia Jiang
  * @version v1
- * @description 密钥同步Consumer
+ * @description 密钥导入Consumer
  * @date Created in 2023-10-12 18:02
  */
 @Slf4j
 public class ImportKeyConsumer {
 
-    public static SyncKeyCallBackTopicInfo importSm2Dek(String msg) {
-        log.info("SyncKey msg: {}", msg);
+    public static ImportKeyCallbackTopicInfo importSm2Dek(String msg) {
+        log.info("importSm2Dek msg: {}", msg);
         String message = DEFAULT_SUCCESS_MESSAGE;
         // 返回实体
-        SyncKeyCallBackTopicInfo callBackTopicInfo = new SyncKeyCallBackTopicInfo();
+        ImportKeyCallbackTopicInfo callBackTopicInfo = new ImportKeyCallbackTopicInfo();
         callBackTopicInfo.setDate(System.currentTimeMillis());
         // 格式化密钥
-        SyncKeyTopicInfo syncKeyTopicInfo = JsonUtils.readValue(msg, SyncKeyTopicInfo.class);
-        log.info("SyncKeyTopicInfo :{}", syncKeyTopicInfo);
-        if (Objects.isNull(syncKeyTopicInfo)) {
+        ImportKeyTopicInfo importKeyTopicInfo = JsonUtils.readValue(msg, ImportKeyTopicInfo.class);
+        log.info("ImportKeyTopicInfo :{}", importKeyTopicInfo);
+        if (Objects.isNull(importKeyTopicInfo)) {
             return callBackTopicInfo.setMessage(ERROR_DATA_FORMAT_FAILED)
-                    .setDeviceSyncKeyResult(new DeviceSyncKeyResult())
                     .setStatus(CallBackStatusEnum.FAILED.ordinal());
         }
         // 执行创建操作
-        DeviceSyncKeyResult deviceSyncKeyResult = null;
+        Boolean flag = Boolean.FALSE;
         try {
-            deviceSyncKeyResult = SyncKeyHelper.syncKey(syncKeyTopicInfo);
+            flag = ImportKeyHelper.batchImportSM2Key(importKeyTopicInfo);
         } catch (Exception e) {
-            log.error("GenerateKey failed, e: {}", message = e.getMessage());
+            log.error("ImportKeyCallbackTopicInfo failed, e: {}", message = e.getMessage());
         }
-        if (Objects.isNull(deviceSyncKeyResult)) {
-            callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
-            callBackTopicInfo.setDeviceSyncKeyResult(new DeviceSyncKeyResult());
-        } else {
+        if (flag) {
             callBackTopicInfo.setStatus(CallBackStatusEnum.SUCCESS.ordinal());
-            callBackTopicInfo.setDeviceSyncKeyResult(deviceSyncKeyResult);
+        } else {
+            callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
         }
         callBackTopicInfo.setMessage(message);
-        log.info("SyncKeyCallBackTopicInfo : {}", callBackTopicInfo);
+        log.info("ImportKeyCallbackTopicInfo : {}", callBackTopicInfo);
         return callBackTopicInfo;
     }
 
-    public static SyncLMKCallbackTopicInfo importSymmetricDek(String msg) {
-        log.info("SyncLMK msg: {}", msg);
+    public static ImportKeyCallbackTopicInfo importSymmetricDek(String msg) {
+        log.info("importSymmetricDek msg: {}", msg);
         String message = DEFAULT_SUCCESS_MESSAGE;
         // 返回实体
-        SyncLMKCallbackTopicInfo callBackTopicInfo = new SyncLMKCallbackTopicInfo();
+        ImportKeyCallbackTopicInfo callBackTopicInfo = new ImportKeyCallbackTopicInfo();
         callBackTopicInfo.setDate(System.currentTimeMillis());
         // 格式化密钥
-        SyncLMKTopicInfo syncKeyTopicInfo = JsonUtils.readValue(msg, SyncLMKTopicInfo.class);
-        log.info("SyncLMKTopicInfo :{}", syncKeyTopicInfo);
-        if (Objects.isNull(syncKeyTopicInfo)) {
+        ImportKeyTopicInfo importKeyTopicInfo = JsonUtils.readValue(msg, ImportKeyTopicInfo.class);
+        log.info("ImportKeyTopicInfo :{}", importKeyTopicInfo);
+        if (Objects.isNull(importKeyTopicInfo)) {
             return callBackTopicInfo.setMessage(ERROR_DATA_FORMAT_FAILED)
                     .setStatus(CallBackStatusEnum.FAILED.ordinal());
         }
         // 执行创建操作
-        Boolean lmkTopicInfo = Boolean.FALSE;
+        Boolean flag = Boolean.FALSE;
         try {
-            lmkTopicInfo = SyncKeyHelper.syncLMK(syncKeyTopicInfo);
+            flag = ImportKeyHelper.batchImportSymmetricDek(importKeyTopicInfo);
         } catch (Exception | Error e) {
             e.printStackTrace();
-            log.error("SyncLMK failed, e: {}", message = e.getMessage());
+            log.error("ImportKeyCallbackTopicInfo failed, e: {}", message = e.getMessage());
         }
-        if (lmkTopicInfo) {
+        if (flag) {
             callBackTopicInfo.setStatus(CallBackStatusEnum.SUCCESS.ordinal());
         } else {
             callBackTopicInfo.setStatus(CallBackStatusEnum.FAILED.ordinal());
         }
         callBackTopicInfo.setMessage(message);
-        log.info("SyncLMKCallbackTopicInfo : {}", callBackTopicInfo);
+        log.info("ImportKeyCallbackTopicInfo : {}", callBackTopicInfo);
         return callBackTopicInfo;
     }
 }

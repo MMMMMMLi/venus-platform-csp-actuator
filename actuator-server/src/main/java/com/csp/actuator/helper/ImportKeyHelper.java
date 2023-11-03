@@ -1,15 +1,21 @@
 package com.csp.actuator.helper;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.csp.actuator.api.constants.KeyInfoKeyConstant;
 import com.csp.actuator.api.enums.DeviceOperationInterfaceEnum;
+import com.csp.actuator.api.kms.ImportKeyTopicInfo;
+import com.csp.actuator.constants.ErrorMessage;
 import com.csp.actuator.device.FactoryBuilder;
+import com.csp.actuator.device.bean.ImportKeyParamEntity;
 import com.csp.actuator.device.factory.HSMFactory;
 import com.csp.actuator.entity.ImportKeyInfo;
 import com.csp.actuator.exception.ActuatorException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.csp.actuator.constants.ErrorMessage.ERROR_OPERATION_NOT_FOUND;
 
@@ -114,4 +120,68 @@ public class ImportKeyHelper {
                 importKeyInfo.getDeviceList());
     }
 
+    public static Boolean batchImportSM2Key(ImportKeyTopicInfo importKeyTopicInfo) {
+        log.info("ImportKeyTopicInfo :{}", importKeyTopicInfo);
+        // 校验
+        List<Map<String, Object>> keyInfoList = importKeyTopicInfo.getKeyInfo();
+        if (CollectionUtil.isEmpty(keyInfoList)) {
+            throw new ActuatorException(ErrorMessage.ERROR_KEY_INFO_NOT_FOUND);
+        }
+        // 处理一下导入信息
+        List<ImportKeyParamEntity> importKeyParamEntityList = keyInfoList.stream().map(keyInfo -> {
+            ImportKeyParamEntity importKeyParamEntity = new ImportKeyParamEntity();
+            importKeyParamEntity.setKekIndex((Integer) keyInfo.get(KeyInfoKeyConstant.KEK_INDEX));
+            importKeyParamEntity.setKeyIndex((Integer) keyInfo.get(KeyInfoKeyConstant.KEY_INDEX));
+            importKeyParamEntity.setKeyAlgTypeCode((Integer) keyInfo.get(KeyInfoKeyConstant.KEY_ALG_TYPE));
+            importKeyParamEntity.setKeyUsedType((Integer) keyInfo.get(KeyInfoKeyConstant.KEY_USAGE));
+            importKeyParamEntity.setCipher((String) keyInfo.get(KeyInfoKeyConstant.KEY_VALUE));
+            importKeyParamEntity.setKeyCV((String) keyInfo.getOrDefault(KeyInfoKeyConstant.KEY_CV, ""));
+            importKeyParamEntity.setKeyLable((String) keyInfo.getOrDefault(KeyInfoKeyConstant.KEY_LABEL, ""));
+            importKeyParamEntity.setKeyId((String) keyInfo.getOrDefault(KeyInfoKeyConstant.KEY_LABEL, ""));
+            return importKeyParamEntity;
+        }).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(importKeyParamEntityList)) {
+            throw new ActuatorException(ErrorMessage.ERROR_KEY_INFO_NOT_FOUND);
+        }
+        // 获取出指定厂商服务器密码机实现类
+        HSMFactory hsmImpl = FactoryBuilder.getHsmImpl(importKeyTopicInfo.getDevModelCode());
+        if (Objects.isNull(hsmImpl)) {
+            return false;
+        }
+        // 执行
+        hsmImpl.batchImportSM2Key(importKeyParamEntityList, importKeyTopicInfo.getDeviceList());
+        return true;
+    }
+
+    public static Boolean batchImportSymmetricDek(ImportKeyTopicInfo importKeyTopicInfo) {
+        log.info("ImportKeyTopicInfo :{}", importKeyTopicInfo);
+        // 校验
+        List<Map<String, Object>> keyInfoList = importKeyTopicInfo.getKeyInfo();
+        if (CollectionUtil.isEmpty(keyInfoList)) {
+            throw new ActuatorException(ErrorMessage.ERROR_KEY_INFO_NOT_FOUND);
+        }
+        // 处理一下导入信息
+        List<ImportKeyParamEntity> importKeyParamEntityList = keyInfoList.stream().map(keyInfo -> {
+            ImportKeyParamEntity importKeyParamEntity = new ImportKeyParamEntity();
+            importKeyParamEntity.setKekIndex((Integer) keyInfo.get(KeyInfoKeyConstant.KEK_INDEX));
+            importKeyParamEntity.setKeyIndex((Integer) keyInfo.get(KeyInfoKeyConstant.KEY_INDEX));
+            importKeyParamEntity.setKeyAlgTypeCode((Integer) keyInfo.get(KeyInfoKeyConstant.KEY_ALG_TYPE));
+            importKeyParamEntity.setKeyUsedType((Integer) keyInfo.get(KeyInfoKeyConstant.KEY_USAGE));
+            importKeyParamEntity.setCipher((String) keyInfo.get(KeyInfoKeyConstant.KEY_VALUE));
+            importKeyParamEntity.setKeyCV((String) keyInfo.getOrDefault(KeyInfoKeyConstant.KEY_CV, ""));
+            importKeyParamEntity.setKeyLable((String) keyInfo.getOrDefault(KeyInfoKeyConstant.KEY_LABEL, ""));
+            importKeyParamEntity.setKeyId((String) keyInfo.getOrDefault(KeyInfoKeyConstant.KEY_LABEL, ""));
+            return importKeyParamEntity;
+        }).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(importKeyParamEntityList)) {
+            throw new ActuatorException(ErrorMessage.ERROR_KEY_INFO_NOT_FOUND);
+        }
+        // 获取出指定厂商服务器密码机实现类
+        HSMFactory hsmImpl = FactoryBuilder.getHsmImpl(importKeyTopicInfo.getDevModelCode());
+        if (Objects.isNull(hsmImpl)) {
+            return false;
+        }
+        // 执行
+        return hsmImpl.batchImportSymmetricKey(importKeyParamEntityList, importKeyTopicInfo.getDeviceList());
+    }
 }

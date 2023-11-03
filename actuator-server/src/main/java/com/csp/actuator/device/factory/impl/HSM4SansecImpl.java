@@ -1,14 +1,16 @@
 package com.csp.actuator.device.factory.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.api.entity.RemoveKeyInfo;
+import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.device.DeviceInstanceHelper;
+import com.csp.actuator.device.bean.ImportKeyParamEntity;
 import com.csp.actuator.device.contants.GlobalUsedTypeCodeConstant;
 import com.csp.actuator.device.enums.GlobalAlgLengthEnum;
 import com.csp.actuator.device.exception.DeviceException;
 import com.csp.actuator.device.factory.HSMFactory;
 import com.csp.actuator.device.session.GMT0018SDFSession;
-import com.csp.actuator.cache.DataCenterKeyCache;
 import com.csp.actuator.utils.SM4Util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -478,6 +480,95 @@ public class HSM4SansecImpl implements HSMFactory {
             log.error("generateAndSaveSymmetricKey4ProKeyIndex failed, error: {}", e.getMessage());
             e.printStackTrace();
             throw new DeviceException("生成密钥失败，请检查服务器连接是否正常！");
+        } finally {
+            sessionList.forEach(GMT0018SDFSession::destroyHsm);
+        }
+    }
+
+    @Override
+    public Boolean batchImportSymmetricKey(List<ImportKeyParamEntity> importKeyParamEntityList, List<String> devicePostList) {
+        if (CollectionUtil.isEmpty(importKeyParamEntityList)) {
+            return Boolean.FALSE;
+        }
+        List<GMT0018SDFSession> sessionList = DeviceInstanceHelper.getSansecHSSMInstance(devicePostList);
+        try {
+            importKeyParamEntityList.forEach(info -> {
+                log.info("begin importSymmetricKey : {}", info);
+                byte[] decryptData;
+                Map<String, Object> param;
+                // 入参
+                String cipherByLMK = info.getCipher();
+                Integer kekIndex = info.getKekIndex();
+                if (Objects.isNull(kekIndex) || kekIndex == 0) {
+                    // 导入的是KEK密钥，KEK密钥由软算法加密，需要解密。
+                    decryptData = SM4Util.decrypt(DataCenterKeyCache.getDataCenterKey(), cipherByLMK);
+                    log.info("SDF_DeDEK success, next execute SWMF_InputKEK...");
+                } else {
+                    // 生成的密钥是密文的，导入需要的是明文，所以此处需要先解密。
+                    param = new HashMap<>();
+                    param.put("operation", "SDF_DeDEK");
+                    param.put("kekIndex", kekIndex);
+                    param.put("key", Base64.getDecoder().decode(cipherByLMK));
+                    decryptData = (byte[]) sessionList.get(0).execute(param);
+                    log.info("SDF_DeDEK success, next execute SWMF_InputKEK...");
+                }
+                // 长度
+                Integer strength = GlobalAlgLengthEnum.getAlgLength(info.getKeyAlgTypeCode());
+                Map<String, Object> inputParam = new HashMap<>();
+                inputParam.put("operation", "SWMF_InputKEK");
+                inputParam.put("keyIndex", info.getKeyIndex());
+                inputParam.put("key", decryptData);
+                inputParam.put("strength", strength);
+                sessionList.forEach(session -> session.execute(inputParam));
+                log.info("SWMF_InputKEK success...");
+            });
+            return true;
+        } catch (Exception e) {
+            log.error("batchImportSymmetricKey failed, error:{}", e.getMessage());
+            e.printStackTrace();
+            throw new DeviceException("导入密钥失败，请检查服务器连接是否正常！");
+        } finally {
+            sessionList.forEach(GMT0018SDFSession::destroyHsm);
+        }
+    }
+
+    @Override
+    public void batchImportSM2Key(List<ImportKeyParamEntity> importKeyParamEntityList, List<String> devicePostList) {
+        if (CollectionUtil.isEmpty(importKeyParamEntityList)) {
+            return;
+        }
+        List<GMT0018SDFSession> sessionList = DeviceInstanceHelper.getSansecHSSMInstance(devicePostList);
+        try {
+            importKeyParamEntityList.forEach(importKeyParamEntity -> {
+                log.info("begin handle key: {}", importKeyParamEntity);
+                // 处理密钥
+                String[] keyInfo = StringUtils.split(importKeyParamEntity.getCipher(), "&");
+                Map<String, Object> param = new HashMap<>();
+                param.put("operation", "SDF_InternalDecrypt_SM4");
+                param.put("data", Base64.getDecoder().decode(keyInfo[1]));
+                param.put("kekIndex", importKeyParamEntity.getKekIndex());
+                byte[] decryPriKey = (byte[]) sessionList.get(0).execute(param);
+                log.info("SDF_InternalDecrypt_SM4 success, next execute SWCSM_InputECCKeyPair...");
+                // 补一下0
+                byte[] pubKey = Base64.getDecoder().decode(keyInfo[0]);
+                byte[] newPubKey = new byte[128];
+                System.arraycopy(pubKey, 0, newPubKey, 32, 32);
+                System.arraycopy(pubKey, 32, newPubKey, 96, 32);
+                Map<String, Object> inputParam = new HashMap<>();
+                inputParam.put("operation", "SWCSM_InputECCKeyPair");
+                inputParam.put("privateKey", decryPriKey);
+                inputParam.put("publicKey", newPubKey);
+                inputParam.put("keyIndex", importKeyParamEntity.getKeyIndex());
+                if (GlobalUsedTypeCodeConstant.KEY_USAGE_CODE_SIGN.equals(importKeyParamEntity.getKeyUsedType())) {
+                    inputParam.put("keyIndexType", 1);
+                }
+                sessionList.forEach(session -> session.execute(inputParam));
+                log.info("SWCSM_InputECCKeyPair success...");
+            });
+        } catch (Exception e) {
+            log.error("batchImportSM2Key failed, error:{}", e.getMessage());
+            e.printStackTrace();
+            throw new DeviceException("导入密钥失败，请检查服务器连接是否正常！");
         } finally {
             sessionList.forEach(GMT0018SDFSession::destroyHsm);
         }

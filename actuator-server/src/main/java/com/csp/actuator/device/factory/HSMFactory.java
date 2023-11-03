@@ -3,6 +3,7 @@ package com.csp.actuator.device.factory;
 
 import com.csp.actuator.api.entity.GenerateKeyResult;
 import com.csp.actuator.api.entity.RemoveKeyInfo;
+import com.csp.actuator.device.bean.ImportKeyParamEntity;
 import com.csp.actuator.device.contants.GlobalAlgTypeCodeConstant;
 import com.csp.actuator.device.contants.GlobalTypeCodeConstant;
 import com.csp.actuator.device.contants.GlobalUsedTypeCodeConstant;
@@ -79,5 +80,9 @@ public interface HSMFactory {
 
     GenerateKeyResult generateAndSaveSymmetricKey4ProKeyIndex(Integer globalKeyType, Integer proKeyIndex, Integer proKeyGlobalKeyType, Integer keyIndex,
                                                               String keyLabel, String destKeyIV, int encDerivedAlg, List<String> devicePostList);
+
+    Boolean batchImportSymmetricKey(List<ImportKeyParamEntity> importKeyParamEntity, List<String> devicePostList);
+
+    void batchImportSM2Key(List<ImportKeyParamEntity> importKeyParamEntity, List<String> devicePostList);
 
 }
